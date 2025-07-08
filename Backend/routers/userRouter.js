@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { signup, login, logout, changeProfilepic, deleteProfilePic, updateUsername ,changeFullName, changePasswordIn } from "../controllers/user.controller.js";
+import { signup, login, logout, changeProfilepic, deleteProfilePic, updateUsername ,changeFullName, changePasswordIn, forgetPassword } from "../controllers/user.controller.js";
 import upload from "../middleware/multer.middleware.js";
 import User from "../modles/user.model.js";
 import jwt from "jsonwebtoken";
@@ -55,5 +55,40 @@ router.route("/deleteProfilePic").post(verifyUser, deleteProfilePic);
 router.route("/updateUsername").post(verifyUser, updateUsername);
 router.route("/changeFullName").post(verifyUser, changeFullName);
 router.route("/changePasswordIn").post(verifyUser, changePasswordIn);
+router.route("/forgetPassword").post(forgetPassword);
+router.route("/updatePassword/:token").post(async (req, res) => {
+  try {
+    const { token } = req.params;
+    const { newPassword } = req.body;
 
+    if (!newPassword) {
+      return res.status(400).json({ message: "New password is required" });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    const user = await User.findById(decoded.id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    if (user.verificationEmailToken.token !== token) {
+      return res.status(400).json({ message: "Invalid token" });
+    }
+    if (user.verificationEmailToken.used) {
+      return res.status(400).json({ message: "Token has already been used" });
+    }
+    
+
+    user.password = newPassword;
+    user.verificationEmailToken.used = true; // Mark the token as used
+  
+    await user.save();
+
+    return res.status(200).json({ message: "Password updated successfully" });
+  } catch (error) {
+    console.error("Error in updatePassword:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+
+});
 export default router;

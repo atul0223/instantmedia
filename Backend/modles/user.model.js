@@ -46,7 +46,19 @@ const userSchema = new Schema(
     otp:{
       type:Number,
       default:0
-    }
+    },
+    verificationEmailToken: {
+  token: {
+    type: String,
+    unique: true,
+    default: "", // Initially empty, will be set when generating a token  
+  },
+  used: {
+    type: Boolean,
+    default: false, // Usually starts as false
+  },
+},
+
   },
   {
     timestamps: true,

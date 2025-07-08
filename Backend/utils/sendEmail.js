@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer'
-const sendVerificationEmail = async (email, token) => {
+const sendVerificationEmail = async (email, token,subject,message) => {
   const transporter = nodemailer.createTransport({
     service: 'Gmail',
     auth: {
@@ -13,8 +13,8 @@ const sendVerificationEmail = async (email, token) => {
   await transporter.sendMail({
     from: `"Your App" <${process.env.EMAIL_USER}>`,
     to: email,
-    subject: 'Verify your email',
-    html: `<p>Click <a href="${url}">here</a> to verify your email. This link expires in 1 hour.</p>`,
+    subject: `${subject || 'Email Verification'}`,
+    html: `<p>Click <a href="${url}">here</a> to ${message}.</p>`,
   });
 }
 export default sendVerificationEmail

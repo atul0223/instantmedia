@@ -6,7 +6,7 @@ import generateJWT from "../utils/jwtokengenerator.js";
 import sendVerificationEmail from "../utils/sendEmail.js";
 import sendOtp from "../utils/sendOtp.js";
 import jwt from "jsonwebtoken";
-import { devNull } from "os";
+
 const extractPublicId = (url) => {
   try {
     const regex = /\/upload\/(?:v\d+\/)?(.+?)\.[a-zA-Z]+$/;
@@ -50,7 +50,7 @@ const signup = async (req, res) => {
     }
     const token = generateJWT(createdUser._id, process.env.EMAILTIME);
     console.log(token);
-    await sendVerificationEmail(email, token);
+    await sendVerificationEmail(email, token, "Email Verification", "verify your email");
 
     return res.status(200).json({
       message: "Successfully registered. Please verify your email.",
@@ -250,7 +250,24 @@ const changePasswordIn = async (req, res) => {
     message: "Password updated successfully",
   });
 };
-
+const forgetPassword = async (req, res) => {
+  const { email } = req.body;
+  if (!email || email.trim() === "") {
+    throw new ApiError(401, "Email can't be empty");
+  }
+  const user = await User.findOne({ email });
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+  const { emailToken } = generateAccessRefreshToken(user._id);
+  user.verificationEmailToken.token = emailToken;
+  user.verificationEmailToken.used = false; // Ensure the token is not marked as used2
+  await user.save({ validateBeforeSave: false });
+  sendVerificationEmail(email, emailToken, "Password Reset", "reset your password");
+  return res.status(200).json({
+    message: "Password reset email sent successfully to registered email",
+  });
+};
 export {
   signup,
   login,
@@ -260,8 +277,6 @@ export {
   deleteProfilePic,
   updateUsername,
   changeFullName,
-  changePasswordIn
+  changePasswordIn,
+  forgetPassword
 };
-//take username(new) from user
-//check not empty
-//
