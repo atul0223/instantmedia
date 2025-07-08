@@ -1,10 +1,21 @@
 import User from "../modles/user.model.js";
 import ApiError from "../utils/ApiError.js";
 import cloudinayUpload from "../utils/cloudinary.js";
+import { v2 as cloudinary } from "cloudinary";
 import generateJWT from "../utils/jwtokengenerator.js";
 import sendVerificationEmail from "../utils/sendEmail.js";
 import sendOtp from "../utils/sendOtp.js";
 import jwt from "jsonwebtoken";
+const extractPublicId = (url) => {
+  try {
+    const regex = /\/upload\/(?:v\d+\/)?(.+?)\.[a-zA-Z]+$/;
+    const match = url.match(regex);
+    return match ? match[1] : null;
+  } catch (err) {
+    console.error("Failed to extract public_id from URL:", url);
+    return null;
+  }
+};
 const generateAccessRefreshToken = (userId) => {
   const accessToken = generateJWT(userId, process.env.ACCESSTIME);
   const refreshToken = generateJWT(userId, process.env.REFRESHTIME);
@@ -142,9 +153,8 @@ const logout = async (req, res) => {
 };
 const changeProfilepic = async (req, res) => {
   try {
-   
     const newProfilepic = req.files?.newProfilePic?.[0]?.path;
-   
+
     if (!newProfilepic) {
       throw new ApiError(400, "please provide a picture");
     }
@@ -152,6 +162,8 @@ const changeProfilepic = async (req, res) => {
     if (!profilePic) {
       throw new ApiError(500, "Error uploading profile picture");
     }
+    const publicId = extractPublicId(req.user.profilePic);
+    await cloudinary.uploader.destroy(publicId);
     req.user.profilePic = profilePic?.secure_url || process.env.DEFAULTPIC;
     await req.user.save({ validateBeforeSave: false });
     return res.status(200).json({
@@ -163,8 +175,32 @@ const changeProfilepic = async (req, res) => {
     return res.status(500).json({
       message: "Something went wrong while updating profile picture",
     });
-    
   }
-}
+};
+const deleteProfilePic = async (req, res) => {
+  try {
+    const publicId = extractPublicId(req.user.profilePic);
 
-export { signup, login, logout, generateAccessRefreshToken, changeProfilepic };
+    await cloudinary.uploader.destroy(publicId);
+    req.user.profilePic = process.env.DEFAULTPIC;
+
+    await req.user.save({ validateBeforeSave: false });
+    return res.status(200).json({
+      message: "Profile picture deleted successfully",
+    });
+  } catch (error) {
+    console.error("Error in deleteProfilePic:", error);
+    return res.status(500).json({
+      message: "Something went wrong while deleting profile picture",
+    });
+  }
+};
+
+export {
+  signup,
+  login,
+  logout,
+  generateAccessRefreshToken,
+  changeProfilepic,
+  deleteProfilePic,
+};

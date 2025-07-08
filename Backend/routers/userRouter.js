@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { signup, login, logout, changeProfilepic } from "../controllers/user.controller.js";
+import { signup, login, logout, changeProfilepic, deleteProfilePic } from "../controllers/user.controller.js";
 import upload from "../middleware/multer.middleware.js";
 import User from "../modles/user.model.js";
 import jwt from "jsonwebtoken";
@@ -41,4 +41,15 @@ router.route("/changeProfilePic").post(verifyUser,upload.fields([{
   name: "newProfilePic",
       maxCount: 1,
 }]),changeProfilepic)
+router.route("/getUser").get(verifyUser, async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).select("-password -refreshToken");
+    if (!user) return res.status(404).json({ message: "User not found" });
+    return res.status(200).json(user);
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+});
+router.route("/deleteProfilePic").post(verifyUser, deleteProfilePic);
 export default router;
