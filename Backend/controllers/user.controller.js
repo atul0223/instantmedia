@@ -10,7 +10,7 @@ const generateAccessRefreshToken = (userId) => {
   const refreshToken = generateJWT(userId, process.env.REFRESHTIME);
   const TrustToken = generateJWT(userId, process.env.REFRESHTIME);
   const emailToken = generateJWT(userId, "10m");
-  return { accessToken, refreshToken, TrustToken,emailToken };
+  return { accessToken, refreshToken, TrustToken, emailToken };
 };
 const signup = async (req, res) => {
   try {
@@ -74,17 +74,32 @@ const login = async (req, res) => {
 
   if (!trusted) {
     sendOtp(user.email);
-    return res.cookie("email", emailToken, {httpOnly: true,secure: true,maxAge: 10 * 60 * 1000,}).status(300).json({ message: "verify through otp sent on registered email" });}
+    return res
+      .cookie("email", emailToken, {
+        httpOnly: true,
+        secure: true,
+        maxAge: 10 * 60 * 1000,
+      })
+      .status(300)
+      .json({ message: "verify through otp sent on registered email" });
+  }
 
   const decodedToken = jwt.verify(trusted, process.env.JWT_SECRET);
-    
-  
+
   const userT = await User.findById(decodedToken.id).select(
     "-password -refreshToken"
   );
   if (!userT) {
     sendOtp(user.email);
-    return res.cookie("email", emailToken, {httpOnly: true,secure: true,maxAge: 10 * 60 * 1000,}).status(300).json({ message: "verify through otp sent on registered email" });}
+    return res
+      .cookie("email", emailToken, {
+        httpOnly: true,
+        secure: true,
+        maxAge: 10 * 60 * 1000,
+      })
+      .status(300)
+      .json({ message: "verify through otp sent on registered email" });
+  }
 
   const { accessToken, refreshToken } = generateAccessRefreshToken(user._id);
   const options = {
@@ -125,5 +140,31 @@ const logout = async (req, res) => {
     message: "Logout successful",
   });
 };
+const changeProfilepic = async (req, res) => {
+  try {
+   
+    const newProfilepic = req.files?.newProfilePic?.[0]?.path;
+   
+    if (!newProfilepic) {
+      throw new ApiError(400, "please provide a picture");
+    }
+    const profilePic = await cloudinayUpload(newProfilepic);
+    if (!profilePic) {
+      throw new ApiError(500, "Error uploading profile picture");
+    }
+    req.user.profilePic = profilePic?.secure_url || process.env.DEFAULTPIC;
+    await req.user.save({ validateBeforeSave: false });
+    return res.status(200).json({
+      message: "Profile picture updated successfully",
+      profilePic: req.user.profilePic,
+    });
+  } catch (error) {
+    console.error("Error in changeProfilepic:", error);
+    return res.status(500).json({
+      message: "Something went wrong while updating profile picture",
+    });
+    
+  }
+}
 
-export { signup, login, logout, generateAccessRefreshToken };
+export { signup, login, logout, generateAccessRefreshToken, changeProfilepic };

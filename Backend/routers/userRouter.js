@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { signup, login, logout } from "../controllers/user.controller.js";
+import { signup, login, logout, changeProfilepic } from "../controllers/user.controller.js";
 import upload from "../middleware/multer.middleware.js";
 import User from "../modles/user.model.js";
 import jwt from "jsonwebtoken";
@@ -35,6 +35,10 @@ router.get("/verify/:token", async (req, res) => {
   }
 });
 router.route("/login").post(login);
-router.route("/logout").get(verifyUser,logout)
-router.route("/verifyotp").post(verifyOtp)
+router.route("/logout").get(verifyUser,logout);
+router.route("/verifyotp").post(verifyOtp);
+router.route("/changeProfilePic").post(verifyUser,upload.fields([{
+  name: "newProfilePic",
+      maxCount: 1,
+}]),changeProfilepic)
 export default router;

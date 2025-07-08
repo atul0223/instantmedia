@@ -6,7 +6,7 @@ const verifyUser =async(req,res,next)=>{
         const token =req.cookies?.AccessToken
         if(!token) throw new ApiError(401,"unAuthorized request");
         const decodedToken =jwt.verify(token,process.env.JWT_SECRET)
-        const user =User.find(decodedToken._id).select("-password -refreshToken")
+        const user = await User.findOne(decodedToken._id).select("-password ")
         if (!user) {
             throw new ApiError(401, "Invalid Access Token")
         }
