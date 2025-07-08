@@ -6,6 +6,7 @@ import generateJWT from "../utils/jwtokengenerator.js";
 import sendVerificationEmail from "../utils/sendEmail.js";
 import sendOtp from "../utils/sendOtp.js";
 import jwt from "jsonwebtoken";
+import { devNull } from "os";
 const extractPublicId = (url) => {
   try {
     const regex = /\/upload\/(?:v\d+\/)?(.+?)\.[a-zA-Z]+$/;
@@ -195,6 +196,60 @@ const deleteProfilePic = async (req, res) => {
     });
   }
 };
+const updateUsername =async(req,res)=>{
+  const {newUsername} =req.body
+  const user =req.user;
+  if (newUsername === null || newUsername.trim() === "") {
+    throw new ApiError(401, "Username can't be empty");
+    
+  }
+
+  const UniqueUser = await User.findOne({ username: newUsername });
+  if (UniqueUser) {
+    throw new ApiError(401, "Username already exists");
+  } 
+  user.username = newUsername;
+  await user.save({ validateBeforeSave: false });
+  return res.status(200).json({
+    message: "Username updated successfully",
+    Newusername: user.username,
+  });
+}
+const changeFullName = async (req, res) => {
+  const { newFullName } = req.body;
+  const user = req.user;
+
+  if (!newFullName || newFullName.trim() === "") {
+    throw new ApiError(401, "Full name can't be empty");
+  }
+
+  user.fullName = newFullName;
+  await user.save({ validateBeforeSave: false });
+  return res.status(200).json({
+    message: "Full name updated successfully",
+    NewfullName: user.fullName,
+  });
+};
+const changePasswordIn = async (req, res) => {
+  const { oldPassword, newPassword } = req.body;
+  const user = req.user;
+
+  if (!oldPassword || !newPassword) {
+    throw new ApiError(401, "Old password and new password can't be empty");
+  }
+
+  const isMatch = await user.validatePassword(oldPassword);
+  if (!isMatch) {
+    throw new ApiError(401, "Old password is incorrect");
+  }
+
+  user.password = newPassword;
+  await user.save({ validateBeforeSave: false });
+  
+  return res.status(200).json({
+    message: "Password updated successfully",
+  });
+};
 
 export {
   signup,
@@ -203,4 +258,10 @@ export {
   generateAccessRefreshToken,
   changeProfilepic,
   deleteProfilePic,
+  updateUsername,
+  changeFullName,
+  changePasswordIn
 };
+//take username(new) from user
+//check not empty
+//

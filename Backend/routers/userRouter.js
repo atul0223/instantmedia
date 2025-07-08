@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { signup, login, logout, changeProfilepic, deleteProfilePic } from "../controllers/user.controller.js";
+import { signup, login, logout, changeProfilepic, deleteProfilePic, updateUsername ,changeFullName, changePasswordIn } from "../controllers/user.controller.js";
 import upload from "../middleware/multer.middleware.js";
 import User from "../modles/user.model.js";
 import jwt from "jsonwebtoken";
@@ -52,4 +52,8 @@ router.route("/getUser").get(verifyUser, async (req, res) => {
   }
 });
 router.route("/deleteProfilePic").post(verifyUser, deleteProfilePic);
+router.route("/updateUsername").post(verifyUser, updateUsername);
+router.route("/changeFullName").post(verifyUser, changeFullName);
+router.route("/changePasswordIn").post(verifyUser, changePasswordIn);
+
 export default router;
