@@ -35,6 +35,10 @@ const signup = async (req, res) => {
     if (existedUser) {
       throw new ApiError(401, "User name already exists");
     }
+    const emailUsed = await User.findOne({ email });
+    if (emailUsed) {
+      throw new ApiError(401, "Email already used");
+    }
     const profilePic = await cloudinayUpload(localFilePath);
 
     const newUser = new User({
