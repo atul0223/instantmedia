@@ -38,23 +38,29 @@ const signup = async (req, res) => {
     const profilePic = await cloudinayUpload(localFilePath);
 
     const newUser = new User({
-  username,
-  passwordSchema: {
-    password,
-  },
-  email,
-  fullName,
-  profilePic: profilePic?.secure_url || process.env.DEFAULTPIC,
-});
+      username,
+      passwordSchema: {
+        password,
+      },
+      email,
+      fullName,
+      profilePic: profilePic?.secure_url || process.env.DEFAULTPIC,
+    });
 
-await newUser.save();
+    await newUser.save();
 
     if (!newUser) {
       throw new ApiError(502, "Error while saving data");
     }
     const token = generateJWT(newUser._id, process.env.EMAILTIME);
-    
-    await sendVerificationEmail(email, token, "Email Verification", "verify your email", "verify");
+
+    await sendVerificationEmail(
+      email,
+      token,
+      "Email Verification",
+      "verify your email",
+      "verify"
+    );
 
     return res.status(200).json({
       message: "Successfully registered. Please verify your email.",
@@ -67,25 +73,48 @@ await newUser.save();
   }
 };
 const login = async (req, res) => {
+ 
   const { username, password, trustDevice } = req.body;
   if (username === null || password === null) {
     throw new ApiError(401, "usercredentials cant be empty");
   }
   const user = await User.findOne({ username });
   if (!user) throw new ApiError(401, "user does'nt exists please signup");
-
+ const { emailToken } = generateToken(user._id);
   const validateUser = await user.validatePassword(password);
 
-  if (!validateUser) throw new ApiError(401, "incorrect password");
+  if (!validateUser) {
+    if (user.passwordSchema.attempts >= 5) {
+      sendOtp(user.email);
+       return res
+      .cookie("email", emailToken, {
+        httpOnly: true,
+        secure: true,
+        maxAge: 10 * 60 * 1000,
+      })
+      .status(429)
+      .json({ message: "Too many login attempts. Please verify your identity." });
+    }
+    user.passwordSchema.attempts += 1;
+    await user.save({ validateBeforeSave: false });
+    throw new ApiError(401, "incorrect password");
+  }
 
   if (!user.isVerified) {
     const token = generateJWT(user._id, process.env.EMAILTIME);
-    await sendVerificationEmail(user.email, token, "Email Verification", "verify your email", "verify");
+    await sendVerificationEmail(
+      user.email,
+      token,
+      "Email Verification",
+      "verify your email",
+      "verify"
+    );
     throw new ApiError(300, "please verify email");
   }
   user.trustDevice = trustDevice;
-  await user.save({validateBeforeSave: false });
-  const { emailToken } = generateToken(user._id);
+  user.passwordSchema.attempts = 0; // Reset attempts on successful login
+  await user.save({   validateBeforeSave: false });
+  
   console.log("emailToken", emailToken, user._id);
 
   const trusted = req.cookies?.TrustedDevice;
@@ -107,7 +136,7 @@ const login = async (req, res) => {
   const userT = await User.findById(decodedToken.id).select(
     "-password -refreshToken"
   );
-  
+
   if (!userT || userT._id.toString() !== user._id.toString()) {
     sendOtp(user.email);
     return res
@@ -203,19 +232,18 @@ const deleteProfilePic = async (req, res) => {
     });
   }
 };
-const updateUsername =async(req,res)=>{
+const updateUsername = async (req, res) => {
   try {
-    const {newUsername} =req.body
-    const user =req.user;
+    const { newUsername } = req.body;
+    const user = req.user;
     if (newUsername === null || newUsername.trim() === "") {
       throw new ApiError(401, "Username can't be empty");
-      
     }
-  
+
     const UniqueUser = await User.findOne({ username: newUsername });
     if (UniqueUser) {
       throw new ApiError(401, "Username already exists");
-    } 
+    }
     user.username = newUsername;
     await user.save({ validateBeforeSave: false });
     return res.status(200).json({
@@ -227,9 +255,8 @@ const updateUsername =async(req,res)=>{
     return res.status(500).json({
       message: "Something went wrong while updating username",
     });
-    
   }
-}
+};
 const changeFullName = async (req, res) => {
   const { newFullName } = req.body;
   const user = req.user;
@@ -248,19 +275,34 @@ const changeFullName = async (req, res) => {
 const changePasswordIn = async (req, res) => {
   const { oldPassword, newPassword } = req.body;
   const user = req.user;
-
+const { emailToken } = generateToken(user._id);
   if (!oldPassword || !newPassword) {
     throw new ApiError(401, "Old password and new password can't be empty");
   }
 
   const isMatch = await user.validatePassword(oldPassword);
   if (!isMatch) {
-    throw new ApiError(401, "Old password is incorrect");
+     if (user.passwordSchema.attempts >= 5) {
+      sendVerificationEmail(
+        user.email,
+        emailToken,
+        "Password Reset",
+        "reset your password",
+        "updatePassword"
+      );
+      return res
+        .status(429)
+        .json({ message: "Too many incorrect attempts. Please change your password through the link sent to your email." });
+    }
+    user.passwordSchema.attempts += 1;
+    await user.save({ validateBeforeSave: false });
+    throw new ApiError(401, "incorrect password");
   }
+   
 
   user.passwordSchema.password = newPassword;
   await user.save({ validateBeforeSave: false });
-  
+
   return res.status(200).json({
     message: "Password updated successfully",
   });
@@ -278,36 +320,47 @@ const forgetPassword = async (req, res) => {
   user.verificationEmailToken.token = emailToken;
   user.verificationEmailToken.used = false; // Ensure the token is not marked as used2
   await user.save({ validateBeforeSave: false });
-  sendVerificationEmail(email, emailToken, "Password Reset", "reset your password", "updatePassword");
+  sendVerificationEmail(
+    email,
+    emailToken,
+    "Password Reset",
+    "reset your password",
+    "updatePassword"
+  );
   return res.status(200).json({
     message: "Password reset email sent successfully to registered email",
   });
 };
 const changeEmail = async (req, res) => {
-  const {password,newEmail}=req.body
-  const user =req.user
-  const {emailToken} =generateToken(user._id)
-  if(!password||!newEmail){
-     throw new ApiError(401,"please provide credentials");
-   } 
-  const passVerify =user.validatePassword(password)
-  if (!passVerify) {
-    throw new ApiError(402,"incorrect password");
-    
+  const { password, newEmail } = req.body;
+  const user = req.user;
+  const { emailToken } = generateToken(user._id);
+  if (!password || !newEmail) {
+    throw new ApiError(401, "please provide credentials");
   }
-  const emailUsed =await User.findOne({email:newEmail})
+  const passVerify = user.validatePassword(password);
+  if (!passVerify) {
+    throw new ApiError(402, "incorrect password");
+  }
+  const emailUsed = await User.findOne({ email: newEmail });
   if (emailUsed) {
-    throw new ApiError(400,"email is already asociated to another profile");
-    
+    throw new ApiError(400, "email is already asociated to another profile");
   }
   user.isVerified = false;
   user.email = newEmail;
   user.save({ validateBeforeSave: false });
-  sendVerificationEmail(newEmail,emailToken,"verify your email","verify your email","verify");
-  res.status(200).json({
+  sendVerificationEmail(
+    newEmail,
+    emailToken,
+    "verify your email",
+    "verify your email",
+    "verify"
+  );
+  res.status(200)
+  .json({
     message: "verification email sent to new email",
   });
-}
+};
 export {
   signup,
   login,
@@ -319,5 +372,5 @@ export {
   changeFullName,
   changePasswordIn,
   forgetPassword,
-  changeEmail
+  changeEmail,
 };

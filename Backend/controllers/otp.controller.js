@@ -38,6 +38,7 @@ const verifyOtp =async(req,res)=>{
   user.accessToken = accessToken;
   user.trustedDevices = TrustToken;
   user.otp=null
+  user.passwordSchema.attempts = 0; // Reset attempts on successful login
     await user.save({ validateBeforeSave: false });
   res.clearCookie("email", options);
   
@@ -54,6 +55,7 @@ const verifyOtp =async(req,res)=>{
     user.refreshToken = refreshToken;
     user.accessToken = accessToken;
     user.otp=null
+    user.passwordSchema.attempts = 0; // Reset attempts on successful login
     await user.save({ validateBeforeSave: false });
     res.clearCookie("email", options);
     
