@@ -6,16 +6,15 @@ const verifyUser =async(req,res,next)=>{
         const token =req.cookies?.AccessToken
         if(!token) throw new ApiError(401,"unAuthorized request");
         const decodedToken =jwt.verify(token,process.env.JWT_SECRET)
-        const user = await User.findOne(decodedToken._id).select("-password ")
+        const user = await User.findOne({ _id: decodedToken.id }).select("-password ")
+        console.log("user",user);
         if (!user) {
             throw new ApiError(401, "Invalid Access Token")
         }
         req.user =user
         next()
     } catch (error) {
-        res.status(401).json({
-            "message":"unauthorized request"
-        })
+        console.error("Verification error:", error)
     }
 }
 export default verifyUser

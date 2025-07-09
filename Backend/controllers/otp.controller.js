@@ -1,6 +1,6 @@
 import User from "../modles/user.model.js"
 import ApiError from "../utils/ApiError.js"
-import { generateAccessRefreshToken } from "./user.controller.js"
+import { generateToken } from "./user.controller.js"
 import jwt from "jsonwebtoken"
 const verifyOtp =async(req,res)=>{
     const {otp}=req.body
@@ -8,11 +8,17 @@ const verifyOtp =async(req,res)=>{
     if (!tokenz) {
     return res.status(400).json({"message":"please generate otp first"})
    }
-       const decoded =jwt.verify(tokenz,process.env.JWT_SECRET)
-  
    
+       const decoded =jwt.verify(tokenz,process.env.JWT_SECRET)
+    if (!decoded) {
+        return res.status(400).json({"message":"invalid token"})
+    }
+    const user = await User.findById(decoded.id).select("-password,-refreshtoken")
+
     
-    const user = await User.findOne(decoded._id).select("-password,-refreshtoken")
+    if(!user){
+       throw new ApiError(401,"user not found");
+    }
     if(!otp){
         throw new ApiError(401,"please enter otp");
     }
@@ -20,7 +26,7 @@ const verifyOtp =async(req,res)=>{
         throw new ApiError(401,"wrong otp");
         
     }
-    const { accessToken, refreshToken,TrustToken } = generateAccessRefreshToken(
+    const { accessToken, refreshToken,TrustToken } = generateToken(
     user._id
   );
   const options = {

@@ -17,7 +17,7 @@ const extractPublicId = (url) => {
     return null;
   }
 };
-const generateAccessRefreshToken = (userId) => {
+const generateToken = (userId) => {
   const accessToken = generateJWT(userId, process.env.ACCESSTIME);
   const refreshToken = generateJWT(userId, process.env.REFRESHTIME);
   const TrustToken = generateJWT(userId, process.env.REFRESHTIME);
@@ -50,7 +50,7 @@ const signup = async (req, res) => {
     }
     const token = generateJWT(createdUser._id, process.env.EMAILTIME);
     
-    await sendVerificationEmail(email, token, "Email Verification", "verify your email");
+    await sendVerificationEmail(email, token, "Email Verification", "verify your email", "verify");
 
     return res.status(200).json({
       message: "Successfully registered. Please verify your email.",
@@ -76,12 +76,14 @@ const login = async (req, res) => {
 
   if (!user.isVerified) {
     const token = generateJWT(user._id, process.env.EMAILTIME);
-    await sendVerificationEmail(user.email, token);
+    await sendVerificationEmail(user.email, token, "Email Verification", "verify your email", "verify");
     throw new ApiError(300, "please verify email");
   }
   user.trustDevice = trustDevice;
   await user.save();
-  const { emailToken } = generateAccessRefreshToken(user._id);
+  const { emailToken } = generateToken(user._id);
+  console.log("emailToken", emailToken, user._id);
+
   const trusted = req.cookies?.TrustedDevice;
 
   if (!trusted) {
@@ -101,7 +103,8 @@ const login = async (req, res) => {
   const userT = await User.findById(decodedToken.id).select(
     "-password -refreshToken"
   );
-  if (!userT) {
+  
+  if (!userT || userT._id.toString() !== user._id.toString()) {
     sendOtp(user.email);
     return res
       .cookie("email", emailToken, {
@@ -113,7 +116,7 @@ const login = async (req, res) => {
       .json({ message: "verify through otp sent on registered email" });
   }
 
-  const { accessToken, refreshToken } = generateAccessRefreshToken(user._id);
+  const { accessToken, refreshToken } = generateToken(user._id);
   const options = {
     httpOnly: true,
     secure: true,
@@ -259,11 +262,11 @@ const forgetPassword = async (req, res) => {
   if (!user) {
     throw new ApiError(404, "User not found");
   }
-  const { emailToken } = generateAccessRefreshToken(user._id);
+  const { emailToken } = generateToken(user._id);
   user.verificationEmailToken.token = emailToken;
   user.verificationEmailToken.used = false; // Ensure the token is not marked as used2
   await user.save({ validateBeforeSave: false });
-  sendVerificationEmail(email, emailToken, "Password Reset", "reset your password");
+  sendVerificationEmail(email, emailToken, "Password Reset", "reset your password", "updatePassword");
   return res.status(200).json({
     message: "Password reset email sent successfully to registered email",
   });
@@ -272,7 +275,7 @@ export {
   signup,
   login,
   logout,
-  generateAccessRefreshToken,
+  generateToken,
   changeProfilepic,
   deleteProfilePic,
   updateUsername,

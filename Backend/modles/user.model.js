@@ -10,7 +10,7 @@ const userSchema = new Schema(
     },
     password: {
       type: String,
-      unique: true,
+      
       required: true,
       trim: true,
     },
@@ -32,33 +32,29 @@ const userSchema = new Schema(
     },
     refreshToken: {
       type: String,
-      unique: true,
     },
-    trustedDevices:{
-      type:String,
-      unique:true
+    trustedDevices: {
+      type: String,
     },
-    trustDevice:
-    {
-      type:Boolean,
-      default:false
+    trustDevice: {
+      type: Boolean,
+      default: false,
     },
-    otp:{
-      type:Number,
-      default:0
+    otp: {
+      type: Number,
+      default: 0,
     },
     verificationEmailToken: {
-  token: {
-    type: String,
-    unique: true,
-    default: "", // Initially empty, will be set when generating a token  
-  },
-  used: {
-    type: Boolean,
-    default: false, // Usually starts as false
-  },
-},
+      token: {
+        type: String,
 
+        default: "", // Initially empty, will be set when generating a token
+      },
+      used: {
+        type: Boolean,
+        default: false, // Usually starts as false
+      },
+    },
   },
   {
     timestamps: true,

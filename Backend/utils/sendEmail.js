@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer'
-const sendVerificationEmail = async (email, token,subject,message) => {
+const sendVerificationEmail = async (email, token,subject,message,routee) => {
   const transporter = nodemailer.createTransport({
     service: 'Gmail',
     auth: {
@@ -8,7 +8,7 @@ const sendVerificationEmail = async (email, token,subject,message) => {
     },
   });
 
-  const url = `${process.env.BASE_URL}/user/verify/${token}`;
+  const url = `${process.env.BASE_URL}/user/${routee}/${token}`;
 
   await transporter.sendMail({
     from: `"Your App" <${process.env.EMAIL_USER}>`,
