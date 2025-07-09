@@ -49,7 +49,7 @@ const signup = async (req, res) => {
       throw new ApiError(502, "Error while saving data");
     }
     const token = generateJWT(createdUser._id, process.env.EMAILTIME);
-    console.log(token);
+    
     await sendVerificationEmail(email, token, "Email Verification", "verify your email");
 
     return res.status(200).json({

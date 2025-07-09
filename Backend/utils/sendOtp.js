@@ -14,7 +14,7 @@ const sendOtp = async (email) => {
     from: `"Your App" <${process.env.EMAIL_USER}>`,
     to: email,
     subject: 'verification',
-    html: `<p>your otp for verification is:${otp} /n This otp expires in 10 minuts.</p>`,
+    html: `<p>your otp for verification is:${otp}  This otp expires in 10 minuts.</p>`,
   });
    await User.findOneAndUpdate({email},{
       $set:{
