@@ -68,7 +68,11 @@ userSchema.pre("save", async function (next) {
   return next();
 });
 userSchema.methods.validatePassword = async function (password) {
+  if (!password || !this.password) {
+    throw new Error("Missing password or hash for comparison");
+  }
   return await bcrypt.compare(password, this.password);
 };
+
 const User = mongoose.model("User", userSchema);
 export default User;
