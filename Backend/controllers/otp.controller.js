@@ -13,7 +13,7 @@ const verifyOtp =async(req,res)=>{
     if (!decoded) {
         return res.status(400).json({"message":"invalid token"})
     }
-    const user = await User.findById(decoded.id).select("-password,-refreshtoken")
+    const user = await User.findById({_id:decoded.id}).select("-password,-refreshtoken")
 
     
     if(!user){

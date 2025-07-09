@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { signup, login, logout, changeProfilepic, deleteProfilePic, updateUsername ,changeFullName, changePasswordIn, forgetPassword } from "../controllers/user.controller.js";
+import { signup, login, logout, changeProfilepic, deleteProfilePic, updateUsername ,changeFullName, changePasswordIn, forgetPassword, changeEmail } from "../controllers/user.controller.js";
 import upload from "../middleware/multer.middleware.js";
 import User from "../modles/user.model.js";
 import jwt from "jsonwebtoken";
@@ -79,7 +79,7 @@ router.route("/updatePassword/:token").post(async (req, res) => {
     }
     
 
-    user.password = newPassword;
+    user.passwordSchemapassword = newPassword;
     user.verificationEmailToken.used = true; // Mark the token as used
   
     await user.save();
@@ -91,4 +91,5 @@ router.route("/updatePassword/:token").post(async (req, res) => {
   }
 
 });
+router.route("/changeEmail").post(verifyUser,changeEmail)
 export default router;

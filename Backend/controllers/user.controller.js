@@ -37,18 +37,22 @@ const signup = async (req, res) => {
     }
     const profilePic = await cloudinayUpload(localFilePath);
 
-    const createdUser = await User.create({
-      username,
-      password,
-      email,
-      fullName,
-      profilePic: profilePic?.secure_url || process.env.DEFAULTPIC,
-    });
+    const newUser = new User({
+  username,
+  passwordSchema: {
+    password,
+  },
+  email,
+  fullName,
+  profilePic: profilePic?.secure_url || process.env.DEFAULTPIC,
+});
 
-    if (!createdUser) {
+await newUser.save();
+
+    if (!newUser) {
       throw new ApiError(502, "Error while saving data");
     }
-    const token = generateJWT(createdUser._id, process.env.EMAILTIME);
+    const token = generateJWT(newUser._id, process.env.EMAILTIME);
     
     await sendVerificationEmail(email, token, "Email Verification", "verify your email", "verify");
 
@@ -80,7 +84,7 @@ const login = async (req, res) => {
     throw new ApiError(300, "please verify email");
   }
   user.trustDevice = trustDevice;
-  await user.save();
+  await user.save({validateBeforeSave: false });
   const { emailToken } = generateToken(user._id);
   console.log("emailToken", emailToken, user._id);
 
@@ -200,23 +204,31 @@ const deleteProfilePic = async (req, res) => {
   }
 };
 const updateUsername =async(req,res)=>{
-  const {newUsername} =req.body
-  const user =req.user;
-  if (newUsername === null || newUsername.trim() === "") {
-    throw new ApiError(401, "Username can't be empty");
+  try {
+    const {newUsername} =req.body
+    const user =req.user;
+    if (newUsername === null || newUsername.trim() === "") {
+      throw new ApiError(401, "Username can't be empty");
+      
+    }
+  
+    const UniqueUser = await User.findOne({ username: newUsername });
+    if (UniqueUser) {
+      throw new ApiError(401, "Username already exists");
+    } 
+    user.username = newUsername;
+    await user.save({ validateBeforeSave: false });
+    return res.status(200).json({
+      message: "Username updated successfully",
+      Newusername: user.username,
+    });
+  } catch (error) {
+    console.error("Error in updateUsername:", error);
+    return res.status(500).json({
+      message: "Something went wrong while updating username",
+    });
     
   }
-
-  const UniqueUser = await User.findOne({ username: newUsername });
-  if (UniqueUser) {
-    throw new ApiError(401, "Username already exists");
-  } 
-  user.username = newUsername;
-  await user.save({ validateBeforeSave: false });
-  return res.status(200).json({
-    message: "Username updated successfully",
-    Newusername: user.username,
-  });
 }
 const changeFullName = async (req, res) => {
   const { newFullName } = req.body;
@@ -246,7 +258,7 @@ const changePasswordIn = async (req, res) => {
     throw new ApiError(401, "Old password is incorrect");
   }
 
-  user.password = newPassword;
+  user.passwordSchema.password = newPassword;
   await user.save({ validateBeforeSave: false });
   
   return res.status(200).json({
@@ -271,6 +283,31 @@ const forgetPassword = async (req, res) => {
     message: "Password reset email sent successfully to registered email",
   });
 };
+const changeEmail = async (req, res) => {
+  const {password,newEmail}=req.body
+  const user =req.user
+  const {emailToken} =generateToken(user._id)
+  if(!password||!newEmail){
+     throw new ApiError(401,"please provide credentials");
+   } 
+  const passVerify =user.validatePassword(password)
+  if (!passVerify) {
+    throw new ApiError(402,"incorrect password");
+    
+  }
+  const emailUsed =await User.findOne({email:newEmail})
+  if (emailUsed) {
+    throw new ApiError(400,"email is already asociated to another profile");
+    
+  }
+  user.isVerified = false;
+  user.email = newEmail;
+  user.save({ validateBeforeSave: false });
+  sendVerificationEmail(newEmail,emailToken,"verify your email","verify your email","verify");
+  res.status(200).json({
+    message: "verification email sent to new email",
+  });
+}
 export {
   signup,
   login,
@@ -281,5 +318,6 @@ export {
   updateUsername,
   changeFullName,
   changePasswordIn,
-  forgetPassword
+  forgetPassword,
+  changeEmail
 };

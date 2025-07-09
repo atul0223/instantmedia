@@ -8,12 +8,16 @@ const userSchema = new Schema(
       required: true,
       trim: true,
     },
-    password: {
-      type: String,
-      
-      required: true,
-      trim: true,
-    },
+    passwordSchema: {
+      password: {
+        type: String,
+        required: true,
+       
+      },
+      attempts: {
+        type: Number,
+        default: 0, // Number of failed login attempts
+    }},
     email: {
       type: String,
       unique: true,
@@ -56,23 +60,28 @@ const userSchema = new Schema(
       },
     },
   },
+
   {
     timestamps: true,
   }
 );
 userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) {
+  if (!this.isModified("passwordSchema.password")) {
     return next();
   }
-  this.password = await bcrypt.hash(this.password, 11);
-  return next();
+  this.passwordSchema.password = await bcrypt.hash(this.passwordSchema.password, 11);
+  next();
 });
+
 userSchema.methods.validatePassword = async function (password) {
-  if (!password || !this.password) {
+  const hashed = this.passwordSchema?.password;
+  
+  if (!password || !hashed) {
     throw new Error("Missing password or hash for comparison");
   }
-  return await bcrypt.compare(password, this.password);
+  return await bcrypt.compare(password, hashed);
 };
+
 
 const User = mongoose.model("User", userSchema);
 export default User;
