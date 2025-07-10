@@ -119,7 +119,7 @@ const login = async (req, res) => {
   user.passwordSchema.attempts = 0; // Reset attempts on successful login
   await user.save({   validateBeforeSave: false });
   
-  console.log("emailToken", emailToken, user._id);
+
 
   const trusted = req.cookies?.TrustedDevice;
 

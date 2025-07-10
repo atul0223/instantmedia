@@ -35,6 +35,7 @@ const toggleFollow = async (req, res) => {
         });
       })
       .catch((err) => {
+      
         throw new ApiError(500, "Error following user");
       });
   } else if (!follow) {
