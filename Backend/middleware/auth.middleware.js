@@ -5,7 +5,7 @@ const verifyUser =async(req,res,next)=>{
     try {
         const token =req.cookies?.AccessToken
         if(!token) {
-           return next(new ApiError(401,"unAuthorized request"));
+           return next(new ApiError(401,"unAuthorized request please login first"));
         }
         const decodedToken =jwt.verify(token,process.env.JWT_SECRET)
         const user = await User.findOne({ _id: decodedToken.id })
