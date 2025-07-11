@@ -1,4 +1,4 @@
-import { log } from "console";
+
 import Post from "../modles/posts.model.js"
 import ApiError from "../utils/ApiError.js";
 import cloudinayUpload from "../utils/cloudinary.js"
