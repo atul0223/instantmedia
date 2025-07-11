@@ -51,7 +51,7 @@ router.route("/getUser").get(verifyUser, async (req, res) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 });
-router.route("/deleteProfilePic").post(verifyUser, deleteProfilePic);
+router.route("/deleteProfilePic").delete(verifyUser, deleteProfilePic);
 router.route("/updateUsername").post(verifyUser, updateUsername);
 router.route("/changeFullName").post(verifyUser, changeFullName);
 router.route("/changePasswordIn").post(verifyUser, changePasswordIn);

@@ -4,7 +4,7 @@ import upload from "../middleware/multer.middleware.js";
 import { getFollowerFollowingList, toggleFollow } from "../controllers/follow.controller.js";
 const router = Router();
 import { getUserProfile } from "../controllers/userProfile.controller.js";
-import { newPosts } from "../controllers/posts.controller.js";
+import { newPosts ,deletePost} from "../controllers/posts.controller.js";
 
 router.get("/:username", getUserProfile);
 router.route("/:username/toggleFollow").post(verifyUser,toggleFollow);
@@ -15,4 +15,5 @@ router.route("/:username/post").post(verifyUser ,upload.fields([
       maxCount: 1,
     },
 ]),newPosts)
+router.route("/:username/deletePost/:postid").delete(verifyUser, deletePost);
 export default router;
