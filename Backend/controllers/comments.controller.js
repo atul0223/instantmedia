@@ -59,4 +59,27 @@ const getComments = async (req, res) => {
     comments: commentsList[0].CommentsList,
   });
 };
-export { addComment, getComments };
+const deleteComments = async (req, res) => {
+  const { commentId } = req.params;
+  const user = req.user;
+
+  if (!commentId) {
+    throw new ApiError(404, "Comment not found");
+  }
+
+  const comment = await Comment.findById(commentId);
+  if (!comment) {
+    throw new ApiError(404, "Comment not found");
+  }
+
+  if (comment.commenter.toString() !== user._id.toString()) {
+    throw new ApiError(403, "You are not authorized to delete this comment");
+  }
+
+  await Comment.findByIdAndDelete(commentId);
+  
+  return res.status(200).json({
+    message: "Comment deleted successfully",
+  });
+}
+export { addComment, getComments , deleteComments };
