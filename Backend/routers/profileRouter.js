@@ -23,4 +23,16 @@ router.route("/:postId/likes").get(likeCountAndList);
 router.route("/:postId/addComment").post(verifyUser,addComment);
 router.route("/:postId/getComment").get(getComments);
 router.route("/:postId/deleteComment/:commentId").delete(verifyUser,deleteComments)
+router.route("/download/:postId").get(verifyUser, async (req, res) => {
+  const { postId } = req.params;
+  if (!postId) {
+    return res.status(404).json({ message: "Post not found" });
+  }
+  const downloadLink = await Post.findById(postId).select("post");
+  res.status(200).json({
+    message: "Download initiated",
+    postId: postId,
+    downloadLink: downloadLink.post ? downloadLink.post : "No post available for download"
+  });
+});
 export default router;
