@@ -43,8 +43,10 @@ const homePage = async (req, res) => {
     feedPosts: feedPosts[0].posts,
   }); }
   else {
-    const feedPosts = await Post.aggregate([{ $sample: { size: 10 } }]);
-;
+    const feedPosts = await Post.aggregate([{ $sample: { size: 10 } },{
+        $sort: { createdAt: -1 }
+      },
+    ]);
     return res.status(200).json({
       success: true,
       feedPosts: feedPosts[0].posts,
