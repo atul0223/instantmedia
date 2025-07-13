@@ -6,7 +6,7 @@ import User from "../modles/user.model.js";
 const toggleLike =async(req,res)=>{
     const {like} =req.body;
     const user =req.user;
-    const {postId} =req.params.postId;
+    const {postId} =req.params;
     
     if (!postId) {
         throw new ApiError(404,"post not found");
@@ -55,11 +55,23 @@ const toggleLike =async(req,res)=>{
 }
 const likeCountAndList =async(req,res)=>{
     const {postId} =req.params;
+    const user=req.user;
+    
     if (!postId) {
         throw new ApiError(404,"post not found");
         
     }
-    const objectId =new mongoose.Types.ObjectId(postId)
+    const postExists =await Post.findById(postId)
+    if (!postExists) {
+        throw new ApiError(404,"post not found");
+        
+    }
+     const isBlocked = await User.findById(postExists.publisher).select("blockedUsers");
+
+        if (isBlocked?.blockedUsers?.includes(user._id)) {
+        throw new ApiError(403, "post not found");
+        }
+    
     const postLikes =await Post.aggregate([
        {$match:{
    _id: new mongoose.Types.ObjectId(postId)

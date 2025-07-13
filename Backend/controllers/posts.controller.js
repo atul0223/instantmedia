@@ -14,9 +14,13 @@ const extractPublicId = (url) => {
   }
 };
 const newPosts = async (req,res) => {
-   try {
-     const user =req.user;
+   
+    const {user} =req.params;
+     const userX =req.user;
      const {title} =req.body;
+     if (userX.username !==user) {
+      throw new ApiError(403,"Forbidden Bad request")
+     }
       const localFilePath = req.files?.post?.[0]?.path;
      if (!localFilePath) {
          throw new ApiError(402,"please provide a picture");
@@ -34,13 +38,7 @@ const newPosts = async (req,res) => {
  return res.status(200).json({
      message:"successfully posted"
  })
-   } catch (error) {
-    console.log(error);
-    
-    return res.status(500).json({
-        message: "internal server error"
-    })
-   }
+   
 }
     const deletePost = async (req, res) => {
  
