@@ -2,6 +2,7 @@ import ApiError from "../utils/ApiError.js";
 import Post from "../modles/posts.model.js";
 import Comment from "../modles/comments.model.js";
 import mongoose from "mongoose";
+import User from "../modles/user.model.js";
 const addComment = async (req, res) => {
   const { inputComment } = req.body;
   const { postId } = req.params;
@@ -14,6 +15,11 @@ const addComment = async (req, res) => {
     throw new ApiError(401, "comment cant be empty");
   }
   const postExists = await Post.findById(postId);
+    const isBlocked = await User.findById(postExists.publisher).select("blockedUsers");
+  
+          if (isBlocked?.blockedUsers?.includes(user._id)) {
+          throw new ApiError(403, "post not found");
+          }
   if (!postExists) {
     throw new ApiError(404, "Post not found");
   }

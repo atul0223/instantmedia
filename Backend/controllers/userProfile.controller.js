@@ -3,7 +3,11 @@ import ApiError from "../utils/ApiError.js";
 const getUserProfile = async (req, res) => {
   try {
     const { username } = req.params;
-
+    const user =req.user
+    const isBlocked =await User.findOne({username}).select( "-password -refreshToken -verificationEmailToken -isVerified -trustedDevices -username")
+    if (isBlocked?.blockedUsers?.includes(user._id)) {
+       throw new ApiError(400, "user not found");
+    }
     if (!username?.trim()) {
       throw new ApiError(400, "username is missing");
     }

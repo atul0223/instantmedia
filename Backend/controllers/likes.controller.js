@@ -2,10 +2,12 @@ import mongoose from "mongoose";
 import Like from "../modles/likes.model.js";
 import Post from "../modles/posts.model.js";
 import ApiError from "../utils/ApiError.js";
+import User from "../modles/user.model.js";
 const toggleLike =async(req,res)=>{
     const {like} =req.body;
     const user =req.user;
     const {postId} =req.params.postId;
+    
     if (!postId) {
         throw new ApiError(404,"post not found");
     }
@@ -13,6 +15,11 @@ const toggleLike =async(req,res)=>{
     if (!postExists) {
         throw new ApiError(404,"post not found");
     }
+       const isBlocked = await User.findById(postExists.publisher).select("blockedUsers");
+
+        if (isBlocked?.blockedUsers?.includes(user._id)) {
+        throw new ApiError(403, "post not found");
+        }
     if (like===true) {
         const alreadyLiked = await Like.findOne({ post: postId, likedBy: user });
 

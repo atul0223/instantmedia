@@ -8,6 +8,10 @@ const toggleFollow = async (req, res) => {
   if (!username) {
     throw new ApiError(401, "Empty username");
   }
+   const isBlocked =await User.findOne({username}).select( "-password -refreshToken -verificationEmailToken -isVerified -trustedDevices -username")
+    if (isBlocked?.blockedUsers?.includes(userX._id)) {
+       throw new ApiError(400, "user not found");
+    }
   const user = await User.findOne({ username }); //user that we want to follow or unfollow
   if (!user) {
     throw new ApiError(401, "user not exists");
@@ -54,6 +58,11 @@ const toggleFollow = async (req, res) => {
 const getFollowerFollowingList = async (req, res) => {
   try {
     const { username } = req.params;
+    const userX=req.user;
+     const isBlocked =await User.findOne({username}).select( "-password -refreshToken -verificationEmailToken -isVerified -trustedDevices -username")
+        if (isBlocked?.blockedUsers?.includes(userX._id)) {
+           throw new ApiError(400, "user not found");
+        }
     const FolloweList = await User.aggregate(
      [  {
                 $match: {

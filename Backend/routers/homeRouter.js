@@ -5,7 +5,7 @@ import User from '../modles/user.model.js';
 const router = Router();
 
 router.route('/').get(verifyUser, homePage);
-router.route('/search').get( async(req, res) => {
+router.route('/search').get(verifyUser, async(req, res) => {
     const { query } = req.query;
     if (!query) {
         return res.status(400).json({ message: 'Query parameter is required' });
