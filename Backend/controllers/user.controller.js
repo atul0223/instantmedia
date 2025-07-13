@@ -365,6 +365,32 @@ const changeEmail = async (req, res) => {
     message: "verification email sent to new email",
   });
 };
+const toggleProfileVisiblity =async (req,res)=>{
+  const user =req.user; 
+
+  const {makePrivate} =req.body;
+   if (typeof makePrivate !== 'boolean') {
+    return res.status(400).json({ message: "Invalid value for makePrivate" });
+  }
+
+
+  if (makePrivate === true) {
+      user.profilePrivate =true
+      await user.save({validateBeforeSave:false})
+      return res.status(200)
+      .json({
+        message:"now profile is private"
+      })
+  }
+  else if(makePrivate ===false){
+     user.profilePrivate =false
+      await user.save({validateBeforeSave:false})
+      return res.status(200)
+      .json({
+        message:"now profile is public"
+      })
+  }
+}
 export {
   signup,
   login,
@@ -377,4 +403,5 @@ export {
   changePasswordIn,
   forgetPassword,
   changeEmail,
+  toggleProfileVisiblity
 };

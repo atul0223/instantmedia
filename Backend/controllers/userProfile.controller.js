@@ -1,11 +1,12 @@
 import User from "../modles/user.model.js";
 import ApiError from "../utils/ApiError.js";
+import isFollowed from "../utils/isFollowed.js";
 const getUserProfile = async (req, res) => {
   try {
     const { username } = req.params;
     const user =req.user
-    const isBlocked =await User.findOne({username}).select( "-password -refreshToken -verificationEmailToken -isVerified -trustedDevices -username")
-    if (isBlocked?.blockedUsers?.includes(user._id)) {
+    const targetUser =await User.findOne({username}).select( "-password -refreshToken -verificationEmailToken -isVerified -trustedDevices -username")
+    if (targetUser?.blockedUsers?.includes(user._id)) {
        throw new ApiError(400, "user not found");
     }
     if (!username?.trim()) {
@@ -59,13 +60,20 @@ const getUserProfile = async (req, res) => {
           followingCount: 1,
           isFollowing: 1,
           profilePic: 1,
+          profilePrivate :1
         },
       },
     ]);
+    if ((targetUser.profilePrivate ===true) && !(await isFollowed(targetUser._id ,user._id))) {
+      return res.json({
+        profileDetails: userProfile[0],
+        message:"profile is private follow first to see posts"
+      })
+    }
     const userPosts = await User.aggregate([
       {
         $match: {
-          username: "Kartik",
+          username: username,
         },
       },
       {
@@ -83,7 +91,8 @@ const getUserProfile = async (req, res) => {
         },
       },
     ]);
-   const postsList = userPosts[0].postList
+   const postsList = userPosts[0]?.postList || [];
+
 
     if (!userProfile?.length) {
       throw new ApiError(404, "User profile does not exist");

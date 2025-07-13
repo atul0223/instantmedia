@@ -62,7 +62,11 @@ const userSchema = new Schema(
     blockedUsers: [{
       type: mongoose.Schema.Types.ObjectId,
       ref: "User"
-    }]
+    }],
+    profilePrivate :{
+      type:Boolean,
+      default:false
+    }
     
   },
 
