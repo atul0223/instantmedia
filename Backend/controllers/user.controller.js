@@ -6,6 +6,7 @@ import generateJWT from "../utils/jwtokengenerator.js";
 import sendVerificationEmail from "../utils/sendEmail.js";
 import sendOtp from "../utils/sendOtp.js";
 import jwt from "jsonwebtoken";
+import UserProfile from "../modles/UserProfile.model.js";
 
 const extractPublicId = (url) => {
   try {
@@ -391,6 +392,42 @@ const toggleProfileVisiblity =async (req,res)=>{
       })
   }
 }
+const handleRequest = async (req, res) => {
+  const user = req.user;
+  const { doAccept } = req.body;
+  const targetUser = req.params.targetUsername;
+
+  console.log("Handling request for:", targetUser);
+
+  const targetuser = await User.findOne({ username: targetUser });
+  if (!targetuser) {
+    throw new ApiError(404, "user not found");
+  }
+
+  const request = await UserProfile.findOne({
+    profile: user._id,
+    follower: targetuser._id,
+    requestStatus: "pending"
+  });
+
+  if (!request) {
+    return res.status(200).json({ message: "no requests" });
+  }
+
+  if (doAccept === false) {
+    await UserProfile.findOneAndDelete({
+      profile: user._id,
+      follower: targetuser._id,
+      requestStatus: "pending"
+    });
+    return res.status(200).json({ message: "request rejected" });
+  }
+
+  request.requestStatus = "accepted";
+  await request.save({ validateBeforeSave: true });
+
+  return res.status(200).json({ message: "request accepted" });
+};
 export {
   signup,
   login,
@@ -403,5 +440,6 @@ export {
   changePasswordIn,
   forgetPassword,
   changeEmail,
-  toggleProfileVisiblity
+  toggleProfileVisiblity,
+  handleRequest
 };

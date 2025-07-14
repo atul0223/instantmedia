@@ -15,9 +15,9 @@ const toggleLike =async(req,res)=>{
     if (!postExists) {
         throw new ApiError(404,"post not found");
     }
-       const isBlocked = await User.findById(postExists.publisher).select("blockedUsers");
+       const targetUser = await User.findById(postExists.publisher).select("blockedUsers");
 
-        if (isBlocked?.blockedUsers?.includes(user._id)) {
+        if (targetUser?.blockedUsers?.includes(user._id)) {
         throw new ApiError(403, "post not found");
         }
     if (like===true) {
@@ -66,9 +66,9 @@ const likeCountAndList =async(req,res)=>{
         throw new ApiError(404,"post not found");
         
     }
-     const isBlocked = await User.findById(postExists.publisher).select("blockedUsers");
+     const targetUser= await User.findById(postExists.publisher).select("blockedUsers");
 
-        if (isBlocked?.blockedUsers?.includes(user._id)) {
+        if (targetUser?.blockedUsers?.includes(user._id)) {
         throw new ApiError(403, "post not found");
         }
     

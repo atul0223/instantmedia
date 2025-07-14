@@ -1,6 +1,7 @@
 import User from "../modles/user.model.js";
 import UserProfile from "../modles/UserProfile.model.js";
 import ApiError from "../utils/ApiError.js";
+import isFollowed from "../utils/isFollowed.js";
 const toggleFollow = async (req, res) => {
   const { username } = req.params;
   const { follow } = req.body;
@@ -8,13 +9,10 @@ const toggleFollow = async (req, res) => {
   if (!username) {
     throw new ApiError(401, "Empty username");
   }
-   const isBlocked =await User.findOne({username}).select( "-password -refreshToken -verificationEmailToken -isVerified -trustedDevices -username")
-    if (isBlocked?.blockedUsers?.includes(userX._id)) {
-       throw new ApiError(400, "user not found");
-    }
+  
   const user = await User.findOne({ username }); //user that we want to follow or unfollow
-  if (!user) {
-    throw new ApiError(401, "user not exists");
+  if (!user ||(user.blockedUsers?.includes(userX._id))) {
+    throw new ApiError(404, "user not exists");
   }
   if (userX.username === user.username) {
     throw new ApiError(401, "You cannot follow or unfollow yourself");
@@ -22,15 +20,18 @@ const toggleFollow = async (req, res) => {
   const alreadyFollowing = await UserProfile.findOne({
     follower: userX._id,
     profile: user._id,
+    requestStatus:"accepted"
   });
-
+  
   if (follow) {
     if (alreadyFollowing) {
       throw new ApiError(400, "You are already following this user");
     }
+    if(!user.profilePrivate){
     await UserProfile.create({
       follower: userX._id,
       profile: user._id,
+      requestStatus:"accepted"
     })
       .then(() => {
         res.status(200).json({
@@ -41,11 +42,29 @@ const toggleFollow = async (req, res) => {
       .catch((err) => {
       
         throw new ApiError(500, "Error following user");
+      });}
+      else if (user.profilePrivate) {
+         await UserProfile.create({
+      follower: userX._id,
+      profile: user._id,
+      requestStatus:"pending"
+    })
+      .then(() => {
+        res.status(200).json({
+          message: "request sent successfully",
+          success: true,
+        });
+      })
+      .catch((err) => {
+      
+        throw new ApiError(500, "Error following user");
       });
+      }
   } else if (!follow) {
     await UserProfile.findOneAndDelete({
       follower: userX._id,
       profile: user._id,
+      requestStatus:"accepted"
     });
     res.status(200).json({
       message: "Unfollowed successfully",
@@ -56,14 +75,15 @@ const toggleFollow = async (req, res) => {
   }
 };
 const getFollowerFollowingList = async (req, res) => {
-  try {
+ 
     const { username } = req.params;
     const userX=req.user;
-     const isBlocked =await User.findOne({username}).select( "-password -refreshToken -verificationEmailToken -isVerified -trustedDevices -username")
-        if (isBlocked?.blockedUsers?.includes(userX._id)) {
+     const targetUser =await User.findOne({username}).select( "-password -refreshToken -verificationEmailToken -isVerified -trustedDevices ")
+        if (targetUser?.blockedUsers?.includes(userX._id)) {
            throw new ApiError(400, "user not found");
         }
-    const FolloweList = await User.aggregate(
+      if (isFollowed(targetUser._id,userX._id)) {
+        const FolloweList = await User.aggregate(
      [  {
                 $match: {
                     username:username
@@ -179,9 +199,8 @@ const getFollowerFollowingList = async (req, res) => {
                   )
              
           
-  } catch (error) {
-     throw new ApiError(500,error);
-     
-  }
+  } 
+  
+    
 };
 export { toggleFollow, getFollowerFollowingList };
