@@ -1,76 +1,87 @@
-import { useNavigate } from "react-router-dom";
-export default function Signup() {
-   const navigate = useNavigate();
+import { Link } from "react-router-dom";
+
+export default function Signup () {
   return (
-    <div className="w-screen h-screen flex justify-center items-center">
-        <div className="pl-50">
-                <img src="/loginSideImage.png" alt="" />
-        </div>
-        <div className="   p-50 rounded-2xl ">
-          <form action="">
-            <div>
-              <h4>Sign up</h4>
-            </div>
-            <div className="form-floating mb-3 mt-3">
-              <input
-                type="text"
-                className="form-control"
-                id="floatingUser"
-                placeholder="Username"
-              />
-              <label htmlFor="floatingUser">Username</label>
-            </div>
-            <div className="form-floating mb-3">
-              <input
-                type="text"
-                className="form-control"
-                id="floatingFullName"
-                placeholder="FullName"
-              />
-              <label htmlFor="floatingFullName">Full name</label>
-            </div>
-            <div className="form-floating mb-3">
-              <input
-                type="email"
-                className="form-control"
-                id="floatingEmail"
-                placeholder="Email"
-              />
-              <label htmlFor="floatingEmail">Email</label>
-            </div>
-            <div className="form-floating mb-3">
-              <input
-                type="password"
-                className="form-control"
-                id="floatingPassword"
-                placeholder="Password"
-              />
-              <label htmlFor="floatingPassword">Password</label>
-            </div>
-
-            <div className="d-grid gap-2 mt-3">
-              <button className="btn btn-primary" type="button">
-                Sign up
-              </button>
-            </div>
-            <div>
-          <p className="text-sm pt-3 cursor-pointer">
-            already have an account?
-            <a
-              className="text-blue-500"
-              onClick={() => {
-                navigate("/Login");
-              }}
-            >
-              {" "}
-              Click Here
-            </a>
-          </p>
-        </div>
+    <div className='h-screen w-screen flex justify-center items-center '>
+      <div className='flex justify-center w-full h-full  p-25 rounded-1xl bg-blue-100 pt-15'>
        
-      </form>
- </div>
- </div>
-
+        <form action=''> <div className="mb-6  ml-2">
+          <h2>!! Welcome !!</h2>
+                  </div>
+          <div className='form-floating mb-2 '>
+            <input
+              type='text'
+              className='form-control'
+              id='floatingUsername'
+              placeholder='Username'
+            />
+            <label htmlFor='floatingUsername'>Username</label>
+          </div>
+          
+           <div className='form-floating mb-2 '>
+            <input
+              type='text'
+              className='form-control'
+              id='floatingFullName'
+              placeholder='Full name'
+            />
+            <label htmlFor='floatingFullName'>Full name</label>
+          </div> <div className='form-floating mb-2 '>
+            <input
+              type='email'
+              className='form-control'
+              id='floatingEmil'
+              placeholder='Email'
+            />
+            <label htmlFor='floatingEmail'>Email</label>
+          </div>
+          <div className='form-floating mb-2'>
+            <input
+              type='password'
+              className='form-control'
+              id='floatingPassword'
+              placeholder='Password'
+            />
+            <label htmlFor='floatingPassword'>Password</label>
+          </div>
+           <div className='form-floating mb-3'>
+            <input
+              type='password'
+              className='form-control'
+              id='floatingPassword'
+              placeholder='Password'
+            />
+            <label htmlFor='floatingPassword'>confirm Password</label>
+          </div>
+          <div className='form-check mb-3'>
+            <input
+              className='form-check-input'
+              type='checkbox'
+              value=''
+              id='checkDefault'
+            />
+            <label className='form-check-label' htmlFor='checkDefault'>
+              Accept our terms? 
+            </label>
+          </div>
+          <div className='d-grid gap-2 mb-3'>
+            <button className='btn btn-primary' type='button'>
+              Sign up
+            </button>
+          </div>
+          
+         
+           
+          <div className="grid grid-cols-3 mt-3"><hr />
+            <p className="ml-6 pt-1">or</p>
+            <hr />
+          </div>
+          <div className="">
+            <p>Already have a account? <Link to={"/"}>Login</Link></p>
+            
+          </div>
+        </form>
+      </div>
+    </div>
   )
 }

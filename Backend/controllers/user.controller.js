@@ -26,7 +26,7 @@ const generateToken = (userId) => {
   return { accessToken, refreshToken, TrustToken, emailToken };
 };
 const signup = async (req, res) => {
-  try {
+  
     const { username, password, email, fullName } = req.body;
     if ([username, password, email, fullName].some((f) => !f?.trim())) {
       throw new ApiError(401, "User credentials can't be empty");
@@ -70,12 +70,7 @@ const signup = async (req, res) => {
     return res.status(200).json({
       message: "Successfully registered. Please verify your email.",
     });
-  } catch (error) {
-    console.error("Error in userController", error);
-    return res.status(500).json({
-      message: "something went wrong",
-    });
-  }
+
 };
 const login = async (req, res) => {
  
@@ -94,7 +89,8 @@ const login = async (req, res) => {
        return res
       .cookie("email", emailToken, {
         httpOnly: true,
-        secure: true,
+          secure: true,         // Must be false since you're using HTTP
+  sameSite: "none",
         maxAge: 10 * 60 * 1000,
       })
       .status(429)
@@ -114,7 +110,7 @@ const login = async (req, res) => {
       "verify your email",
       "verify"
     );
-    throw new ApiError(300, "please verify email");
+    throw new ApiError(301, "please verify email");
   }
   user.trustDevice = trustDevice;
   user.passwordSchema.attempts = 0; // Reset attempts on successful login
@@ -129,11 +125,14 @@ const login = async (req, res) => {
     return res
       .cookie("email", emailToken, {
         httpOnly: true,
-        secure: true,
+          secure:true,       
+  sameSite: "none",
         maxAge: 10 * 60 * 1000,
       })
-      .status(300)
-      .json({ message: "verify through otp sent on registered email" });
+     .status(200)
+      .json({ message: "verify through otp sent on registered email",
+         requiresOtp: true 
+       });
   }
 
   const decodedToken = jwt.verify(trusted, process.env.JWT_SECRET);
@@ -147,17 +146,23 @@ const login = async (req, res) => {
     return res
       .cookie("email", emailToken, {
         httpOnly: true,
-        secure: true,
+          secure: true,     
+  sameSite: "none",
         maxAge: 10 * 60 * 1000,
       })
-      .status(300)
-      .json({ message: "verify through otp sent on registered email" });
+      .status(200)
+      .json({ message: "verify through otp sent on registered email",
+         requiresOtp: true 
+       });
+  
+
   }
 
   const { accessToken, refreshToken } = generateToken(user._id);
   const options = {
     httpOnly: true,
-    secure: true,
+      secure: true,        
+  sameSite: "none"
   };
   user.refreshToken = refreshToken;
   user.accessToken = accessToken;

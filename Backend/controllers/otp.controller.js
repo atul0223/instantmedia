@@ -5,6 +5,8 @@ import jwt from "jsonwebtoken"
 const verifyOtp =async(req,res)=>{
     const {otp}=req.body
     const tokenz =req.cookies?.email
+
+    
     if (!tokenz) {
     return res.status(400).json({"message":"please generate otp first"})
    }
@@ -22,7 +24,7 @@ const verifyOtp =async(req,res)=>{
     if(!otp){
         throw new ApiError(401,"please enter otp");
     }
-    if(user.otp!==otp){
+    if(user.otp.toString()!==otp.toString()){
         throw new ApiError(401,"wrong otp");
         
     }
@@ -32,6 +34,7 @@ const verifyOtp =async(req,res)=>{
   const options = {
     httpOnly: true,
     secure: true,
+    sameSite: "none",
   };
   if(user.trustDevice===true){
     user.refreshToken = refreshToken;
