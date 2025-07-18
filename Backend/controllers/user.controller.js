@@ -26,79 +26,78 @@ const generateToken = (userId) => {
   return { accessToken, refreshToken, TrustToken, emailToken };
 };
 const signup = async (req, res) => {
-  
-    const { username, password, email, fullName } = req.body;
-    if ([username, password, email, fullName].some((f) => !f?.trim())) {
-      throw new ApiError(401, "User credentials can't be empty");
-    }
-    const localFilePath = req.files?.profilePic?.[0]?.path;
-    const existedUser = await User.findOne({ username });
-    if (existedUser) {
-      throw new ApiError(401, "User name already exists");
-    }
-    const emailUsed = await User.findOne({ email });
-    if (emailUsed) {
-      throw new ApiError(401, "Email already used");
-    }
-    const profilePic = await cloudinayUpload(localFilePath);
+  const { username, password, email, fullName } = req.body;
+  if ([username, password, email, fullName].some((f) => !f?.trim())) {
+    return res.status(401).json({ message: "fields required" });
+  }
+  const localFilePath = req.files?.profilePic?.[0]?.path;
+  const existedUser = await User.findOne({ username });
+  if (existedUser) {
+    return res.status(401).json({ message: "Username already exists" });
+  }
+  const emailUsed = await User.findOne({ email });
+  if (emailUsed) {
+    return res.status(401).json({ message: "Email already exists" });
+  }
+  const profilePic = await cloudinayUpload(localFilePath);
 
-    const newUser = new User({
-      username,
-      passwordSchema: {
-        password,
-      },
-      email,
-      fullName,
-      profilePic: profilePic?.secure_url || process.env.DEFAULTPIC,
-    });
+  const newUser = new User({
+    username,
+    passwordSchema: {
+      password,
+    },
+    email,
+    fullName,
+    profilePic: profilePic?.secure_url || process.env.DEFAULTPIC,
+  });
 
-    await newUser.save();
+  await newUser.save();
 
-    if (!newUser) {
-      throw new ApiError(502, "Error while saving data");
-    }
-    const token = generateJWT(newUser._id, process.env.EMAILTIME);
+  if (!newUser) {
+    return res.status(500).json({ message: "Error creating user" });
+  }
+  const token = generateJWT(newUser._id, process.env.EMAILTIME);
 
-    await sendVerificationEmail(
-      email,
-      token,
-      "Email Verification",
-      "verify your email",
-      "verify"
-    );
+  await sendVerificationEmail(
+    email,
+    token,
+    "Email Verification",
+    "verify your email",
+    "verify"
+  );
 
-    return res.status(200).json({
-      message: "Successfully registered. Please verify your email.",
-    });
-
+  return res.status(200).json({
+    message: "Successfully registered. Please verify your email.",
+  });
 };
 const login = async (req, res) => {
- 
   const { username, password, trustDevice } = req.body;
   if (username === null || password === null) {
-    return res.status(401).json({ message: "Username and password are required" });
+    return res
+      .status(401)
+      .json({ message: "Username and password are required" });
   }
   const user = await User.findOne({ username });
   if (!user) return res.status(404).json({ message: "User not found" });
- const { emailToken } = generateToken(user._id);
+  const { emailToken } = generateToken(user._id);
   const validateUser = await user.validatePassword(password);
 
   if (!validateUser) {
     if (user.passwordSchema.attempts >= 5) {
       sendOtp(user.email);
-       return res
-      .cookie("email", emailToken, {
-        httpOnly: true,
-          secure: true,         // Must be false since you're using HTTP
-  sameSite: "none",
-        maxAge: 10 * 60 * 1000,
-      })
-      .status(429)
-      .json({ message: "Too many login attempts. Please verify your identity." });
+      return res
+        .cookie("email", emailToken, {
+          httpOnly: true,
+          secure: true, // Must be false since you're using HTTP
+          sameSite: "none",
+          maxAge: 10 * 60 * 1000,
+        })
+        .status(429)
+        .json({ message: "Too many wrong attempts.", requiresOtp: true });
     }
     user.passwordSchema.attempts += 1;
     await user.save({ validateBeforeSave: false });
-    throw new ApiError(401, "incorrect password");
+    return res.status(401).json({ message: "Incorrect password" });
   }
 
   if (!user.isVerified) {
@@ -110,13 +109,13 @@ const login = async (req, res) => {
       "verify your email",
       "verify"
     );
-    throw new ApiError(301, "please verify email");
+    return res.status(401).json({
+      message: "Please verify your email",
+    });
   }
   user.trustDevice = trustDevice;
   user.passwordSchema.attempts = 0; // Reset attempts on successful login
-  await user.save({   validateBeforeSave: false });
-  
-
+  await user.save({ validateBeforeSave: false });
 
   const trusted = req.cookies?.TrustedDevice;
 
@@ -125,14 +124,15 @@ const login = async (req, res) => {
     return res
       .cookie("email", emailToken, {
         httpOnly: true,
-          secure:true,       
-  sameSite: "none",
+        secure: true,
+        sameSite: "none",
         maxAge: 10 * 60 * 1000,
       })
-     .status(200)
-      .json({ message: "verify through otp sent on registered email",
-         requiresOtp: true 
-       });
+      .status(200)
+      .json({
+        message: "verify through otp sent on registered email",
+        requiresOtp: true,
+      });
   }
 
   const decodedToken = jwt.verify(trusted, process.env.JWT_SECRET);
@@ -146,23 +146,22 @@ const login = async (req, res) => {
     return res
       .cookie("email", emailToken, {
         httpOnly: true,
-          secure: true,     
-  sameSite: "none",
+        secure: true,
+        sameSite: "none",
         maxAge: 10 * 60 * 1000,
       })
       .status(200)
-      .json({ message: "verify through otp sent on registered email",
-         requiresOtp: true 
-       });
-  
-
+      .json({
+        message: "verify through otp sent on registered email",
+        requiresOtp: true,
+      });
   }
 
   const { accessToken, refreshToken } = generateToken(user._id);
   const options = {
     httpOnly: true,
-      secure: true,        
-  sameSite: "none"
+    secure: true,
+    sameSite: "none",
   };
   user.refreshToken = refreshToken;
   user.accessToken = accessToken;
@@ -285,14 +284,14 @@ const changeFullName = async (req, res) => {
 const changePasswordIn = async (req, res) => {
   const { oldPassword, newPassword } = req.body;
   const user = req.user;
-const { emailToken } = generateToken(user._id);
+  const { emailToken } = generateToken(user._id);
   if (!oldPassword || !newPassword) {
     throw new ApiError(401, "Old password and new password can't be empty");
   }
 
   const isMatch = await user.validatePassword(oldPassword);
   if (!isMatch) {
-     if (user.passwordSchema.attempts >= 5) {
+    if (user.passwordSchema.attempts >= 5) {
       sendVerificationEmail(
         user.email,
         emailToken,
@@ -302,13 +301,15 @@ const { emailToken } = generateToken(user._id);
       );
       return res
         .status(429)
-        .json({ message: "Too many incorrect attempts. Please change your password through the link sent to your email." });
+        .json({
+          message:
+            "Too many incorrect attempts. Please change your password through the link sent to your email.",
+        });
     }
     user.passwordSchema.attempts += 1;
     await user.save({ validateBeforeSave: false });
     throw new ApiError(401, "incorrect password");
   }
-   
 
   user.passwordSchema.password = newPassword;
   await user.save({ validateBeforeSave: false });
@@ -366,37 +367,32 @@ const changeEmail = async (req, res) => {
     "verify your email",
     "verify"
   );
-  res.status(200)
-  .json({
+  res.status(200).json({
     message: "verification email sent to new email",
   });
 };
-const toggleProfileVisiblity =async (req,res)=>{
-  const user =req.user; 
+const toggleProfileVisiblity = async (req, res) => {
+  const user = req.user;
 
-  const {makePrivate} =req.body;
-   if (typeof makePrivate !== 'boolean') {
+  const { makePrivate } = req.body;
+  if (typeof makePrivate !== "boolean") {
     return res.status(400).json({ message: "Invalid value for makePrivate" });
   }
 
-
   if (makePrivate === true) {
-      user.profilePrivate =true
-      await user.save({validateBeforeSave:false})
-      return res.status(200)
-      .json({
-        message:"now profile is private"
-      })
+    user.profilePrivate = true;
+    await user.save({ validateBeforeSave: false });
+    return res.status(200).json({
+      message: "now profile is private",
+    });
+  } else if (makePrivate === false) {
+    user.profilePrivate = false;
+    await user.save({ validateBeforeSave: false });
+    return res.status(200).json({
+      message: "now profile is public",
+    });
   }
-  else if(makePrivate ===false){
-     user.profilePrivate =false
-      await user.save({validateBeforeSave:false})
-      return res.status(200)
-      .json({
-        message:"now profile is public"
-      })
-  }
-}
+};
 const handleRequest = async (req, res) => {
   const user = req.user;
   const { doAccept } = req.body;
@@ -412,7 +408,7 @@ const handleRequest = async (req, res) => {
   const request = await UserProfile.findOne({
     profile: user._id,
     follower: targetuser._id,
-    requestStatus: "pending"
+    requestStatus: "pending",
   });
 
   if (!request) {
@@ -423,7 +419,7 @@ const handleRequest = async (req, res) => {
     await UserProfile.findOneAndDelete({
       profile: user._id,
       follower: targetuser._id,
-      requestStatus: "pending"
+      requestStatus: "pending",
     });
     return res.status(200).json({ message: "request rejected" });
   }
@@ -446,5 +442,5 @@ export {
   forgetPassword,
   changeEmail,
   toggleProfileVisiblity,
-  handleRequest
+  handleRequest,
 };

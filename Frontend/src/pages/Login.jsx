@@ -17,18 +17,35 @@ export default function Login() {
       setMessage("fields required");
     }
 
-    const res = await axios.post(
-      "https://localhost:3000/user/login",
-      userData,
-      { withCredentials: true }
-    );
-
-    if (res.data.requiresOtp) {
+   await axios
+      .post("https://localhost:3000/user/login", userData, {
+        withCredentials: true,
+      })
+      .then((response) => {
+         if (response.data.requiresOtp) {
       navigate("/verifyotp");
-    } else {
-      setMessage(res.data.message);
+    } 
+        setMessage(response.data.message);
+      })
+      .catch((error) => {
+       
+        if (error.response) {
+         if (error.response.data.requiresOtp) {
+      navigate("/verifyotp");
+    } 
+    if (error.response.data.message==="Please verify your email") {
+          navigate("/verifyemail");
+        
     }
-    
+
+          setMessage(error.response.data.message);
+        } else {
+          
+          setMessage("Something went wrong.");
+        }
+      });
+
+   
   };
 
   return (
@@ -61,10 +78,7 @@ export default function Login() {
             />
             <label htmlFor="floatingPassword">Password</label>
           </div>
-          <div
-            className=' flex justify-end items-center overflow-hidden mb-1'
- 
-          >
+          <div className=" flex justify-end items-center overflow-hidden mb-1">
             {message && <p className="text-red-800 text-sm m-0">{message}</p>}
           </div>
 

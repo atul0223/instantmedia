@@ -19,13 +19,15 @@ const verifyOtp =async(req,res)=>{
 
     
     if(!user){
-       throw new ApiError(401,"user not found");
+     return  res.status(404).json({ message:"user not found"})
     }
     if(!otp){
-        throw new ApiError(401,"please enter otp");
+      return res.status(400).json({ message:"otp is required"})
     }
+   if(otp.length !== 6){
+      return res.status(400).json({ message:"otp must be 6 digits"})}
     if(user.otp.toString()!==otp.toString()){
-        throw new ApiError(401,"wrong otp");
+      return  res.status(400).json({ message:"invalid otp"})
         
     }
     const { accessToken, refreshToken,TrustToken } = generateToken(

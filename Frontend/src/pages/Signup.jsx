@@ -1,9 +1,13 @@
-import { useRef, useState } from "react";
+import { use, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from 'axios'
+import axios from 'axios';
+import { useEffect } from "react";
 import { BACKENDURL } from "../config";
 export default function Signup () {
+  const [acceptpolicy, setAcceptPolicy] = useState(false)
+ 
   const [pass,setPass]=useState("")
+  const [message, setMessage] = useState("");
   const userref=useRef()
   const passref=useRef()
   const fullNameref=useRef()
@@ -14,6 +18,19 @@ export default function Signup () {
     const password =passref.current.value
     const fullName=fullNameref.current.value
     const email=emailref.current.value
+    if(password !== pass){
+      setMessage("password did'nt match")
+      return;
+
+    }
+    if(password.length < 6){
+      setMessage("password must be at least 6 characters")
+      return;}
+if(!password.includes("@") && !password.includes("#") && !password.includes("$")){
+      setMessage("weak password must include @, # or $")
+      return;
+    }
+
     const userData ={
       username,
       password,
@@ -21,10 +38,27 @@ export default function Signup () {
       email
     }
 
-    const res =await axios.post(`${BACKENDURL}/user/signup`,userData,{withCredentials:true})
+    await axios.post(`${BACKENDURL}/user/signup`,userData,{withCredentials:true})  .then((response) => {
+        navigate(`/verifyemail`)
+        setMessage(response.data.message);
+      })
+      .catch((error) => {
+       
+        if (error.response) {
+       
+    if (error.response.data.message==="Please verify your email") {
+          navigate("/verifyemail");
+        
+    }
+
+          setMessage(error.response.data.message);
+        } else {
+          
+          setMessage("Something went wrong.");
+        }
+      });
     localStorage.setItem('username', `${username}`) 
-     navigate(`/verifyemail`)
-    console.log(res);
+     
     
   }
   return (
@@ -86,19 +120,23 @@ export default function Signup () {
             />
             <label htmlFor='floatingPasswordconfirm'>Confirm password</label>
           </div>
+           <div className=" flex justify-end items-center overflow-hidden mb-1">
+            {message && <p className="text-red-800 text-sm m-0">{message}</p>}
+          </div>
           <div className='form-check mb-3'>
             <input
               className='form-check-input'
               type='checkbox'
-              value=''
+              value={acceptpolicy}
               id='checkDefault'
+              onChange={(e) => setAcceptPolicy(e.target.checked)}
             />
             <label className='form-check-label' htmlFor='checkDefault'>
               Accept our terms? 
             </label>
           </div>
           <div className='d-grid gap-2 mb-3'>
-            <button className='btn btn-primary' type='button'onClick={signup}>
+            <button className='btn btn-primary' type='button'onClick={signup} id="si" disabled={!acceptpolicy} >
               Sign up
             </button>
           </div>
