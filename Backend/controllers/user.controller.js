@@ -76,10 +76,10 @@ const login = async (req, res) => {
  
   const { username, password, trustDevice } = req.body;
   if (username === null || password === null) {
-    throw new ApiError(401, "usercredentials cant be empty");
+    return res.status(401).json({ message: "Username and password are required" });
   }
   const user = await User.findOne({ username });
-  if (!user) throw new ApiError(401, "user does'nt exists please signup");
+  if (!user) return res.status(404).json({ message: "User not found" });
  const { emailToken } = generateToken(user._id);
   const validateUser = await user.validatePassword(password);
 

@@ -94,4 +94,17 @@ router.route("/updatePassword/:token").post(async (req, res) => {
 router.route("/changeEmail").post(verifyUser,changeEmail)
 router.route("/toggleProfileVisiblity").post(verifyUser,toggleProfileVisiblity)
 router.route("/handleRequest/:targetUsername").post(verifyUser,handleRequest)
+router.route("/isemailVerified/:username").get(async (req, res) => {
+  try {
+    const { username } = req.params;
+    const user = await User.findOne({ username }).select("isVerified");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    return res.status(200).json({ isVerified: user.isVerified });
+  } catch (error) {
+    console.error("Error checking email verification:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+});
 export default router;

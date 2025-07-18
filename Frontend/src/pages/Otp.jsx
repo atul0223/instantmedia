@@ -23,12 +23,12 @@ export default function Otp () {
   }
 
   return (
-    <div className='h-screen w-screen flex justify-center items-center '>
-      <div className='flex justify-center w-full h-full  p-25 rounded-1xl bg-blue-100 '>
+    <div className='h-screen w-screen flex justify-center items-center bg-blue-200'>
+      <div className='flex justify-center w-full h-full sm:w-fit sm:h-fit sm:border-b-blue-600 p-30 sm:mb-30 sm:pt-12 sm:pb-20 sm:rounded-4xl bg-blue-100 '>
         <div>
           
           <div className='mb-6 ' id='123'>
-            <h6 >please verify otp sent to registerd email</h6>
+            <h6 >please verify otp sent to registerd email !!</h6>
           </div>
           <div>
              <h6> {message && <p className="text-green-800">{message}</p>}</h6> 
