@@ -79,7 +79,7 @@ router.route("/updatePassword/:token").post(async (req, res) => {
     }
     
 
-    user.passwordSchemapassword = newPassword;
+    user.passwordSchema.password = newPassword;
     user.verificationEmailToken.used = true; // Mark the token as used
   
     await user.save();

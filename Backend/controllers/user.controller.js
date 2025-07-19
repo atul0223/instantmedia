@@ -63,7 +63,7 @@ const signup = async (req, res) => {
     token,
     "Email Verification",
     "verify your email",
-    "verify"
+    "verifyemail"
   );
 
   return res.status(200).json({
@@ -107,7 +107,7 @@ const login = async (req, res) => {
       token,
       "Email Verification",
       "verify your email",
-      "verify"
+      "verifyemail"
     );
     return res.status(401).json({
       message: "Please verify your email",
@@ -297,7 +297,7 @@ const changePasswordIn = async (req, res) => {
         emailToken,
         "Password Reset",
         "reset your password",
-        "updatePassword"
+        "updatePass"
       );
       return res
         .status(429)
@@ -336,7 +336,7 @@ const forgetPassword = async (req, res) => {
     emailToken,
     "Password Reset",
     "reset your password",
-    "updatePassword"
+    "updatePass"
   );
   return res.status(200).json({
     message: "reset email sent successfully",
@@ -365,7 +365,7 @@ const changeEmail = async (req, res) => {
     emailToken,
     "verify your email",
     "verify your email",
-    "verify"
+    "verifyemail"
   );
   res.status(200).json({
     message: "verification email sent to new email",

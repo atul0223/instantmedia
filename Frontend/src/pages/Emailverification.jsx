@@ -11,7 +11,9 @@ export default function EmailVerification() {
   }
 
   const [isVerified, setIsVerified] = useState(false);
-
+if (condition) {
+  
+}
   useEffect(() => {
     let cancelled = false;
 
