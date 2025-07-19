@@ -18,6 +18,7 @@ export default function Signup () {
     const password =passref.current.value
     const fullName=fullNameref.current.value
     const email=emailref.current.value
+    
     if(password !== pass){
       setMessage("password did'nt match")
       return;

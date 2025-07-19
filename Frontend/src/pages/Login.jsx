@@ -106,7 +106,7 @@ export default function Login() {
             <hr />
           </div>
           <div className="sm:ml-10 ml-7">
-            <a href="/">Forgot password</a>
+            <Link to={"/ForgotPassword"}>Forgot password</Link>
           </div>
           <div className="grid grid-cols-3 mt-3">
             <hr />

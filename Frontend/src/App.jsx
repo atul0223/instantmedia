@@ -4,6 +4,8 @@ import Login from "./pages/Login.jsx";
 import Signup from "./pages/Signup.jsx";
 import Otp from "./pages/Otp.jsx";
 import Emailverification from "./pages/emailverification.jsx";
+import ForgetPass from "./pages/ForgetPass.jsx";
+
 
 function App() {
 
@@ -15,6 +17,8 @@ function App() {
     <Route path="/Signup" element={<Signup/>}></Route>
    <Route path="/verifyotp" element={<Otp/>}></Route>
    <Route path="/verifyemail" element={<Emailverification/>}></Route>
+   <Route path="/ForgotPassword" element={<ForgetPass/>}></Route>
+  
     </Routes>
    </BrowserRouter>
   

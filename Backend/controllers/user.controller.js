@@ -321,11 +321,11 @@ const changePasswordIn = async (req, res) => {
 const forgetPassword = async (req, res) => {
   const { email } = req.body;
   if (!email || email.trim() === "") {
-    throw new ApiError(401, "Email can't be empty");
+    return res.status(400).json({ message: "Email is required" });
   }
   const user = await User.findOne({ email });
   if (!user) {
-    throw new ApiError(404, "User not found");
+    return res.status(404).json({ message: "User not found with this email" });
   }
   const { emailToken } = generateToken(user._id);
   user.verificationEmailToken.token = emailToken;
@@ -339,7 +339,7 @@ const forgetPassword = async (req, res) => {
     "updatePassword"
   );
   return res.status(200).json({
-    message: "Password reset email sent successfully to registered email",
+    message: "reset email sent successfully",
   });
 };
 const changeEmail = async (req, res) => {
