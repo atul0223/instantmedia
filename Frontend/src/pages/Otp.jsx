@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 import axios from 'axios'
 import { Link, useSearchParams } from 'react-router-dom'
-import Signup from './Signup'
+
 export default function Otp () {
   const otpref = useRef()
  const [message,setMessage]=useState("")

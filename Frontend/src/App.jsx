@@ -20,7 +20,7 @@ function App() {
    <Route path="/verifyotp" element={<Otp/>}></Route>
    <Route path="/verifyemail" element={<Emailverification/>}></Route>
    <Route path="/ForgotPassword" element={<ForgetPass/>}></Route>
-  <Route path="/updatePass/:token" element={<ChangePass/>}></Route>
+  <Route path="/changePass" element={<ChangePass/>}></Route>
 
     </Routes>
    </BrowserRouter>

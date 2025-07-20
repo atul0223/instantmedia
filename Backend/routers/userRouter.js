@@ -5,6 +5,7 @@ import User from "../modles/user.model.js";
 import jwt from "jsonwebtoken";
 import verifyUser from "../middleware/auth.middleware.js";
 import verifyOtp from "../controllers/otp.controller.js";
+import generateJWT from "../utils/jwtokengenerator.js";
 const router = Router();
 router.route("/signup").post(
   upload.fields([
@@ -22,16 +23,23 @@ router.get("/verify/:token", async (req, res) => {
 
     const user = await User.findById(decoded.id);
     if (!user) return res.status(404).send("User not found");
-
+    if (user.verificationEmailToken.token !== token) {
+      return res.status(400).send("Invalid token");
+    }
+    if (user.verificationEmailToken.used) {
+      return res.status(400).send("Token has already been used");
+    }
     if (user.isVerified) return res.send("Email already verified");
 
     user.isVerified = true;
+    user.verificationEmailToken.used = true; // Mark the token as used
+    user.verificationEmailToken.token = ""; // Clear the token after use
     await user.save();
 
-    return res.status(200).json({ message: "Email verified successfully!" });
+    return res.status(200).json({ message: "Email verified successfully!",success: true });
   } catch (err) {
     console.error("Verification error:", err);
-    return res.status(400).send("Invalid or expired token");
+    return res.status(400).json({ message: "Invalid or expired token", success: false });
   }
 });
 router.route("/login").post(login);
@@ -56,41 +64,7 @@ router.route("/updateUsername").post(verifyUser, updateUsername);
 router.route("/changeFullName").post(verifyUser, changeFullName);
 router.route("/changePasswordIn").post(verifyUser, changePasswordIn);
 router.route("/forgetPassword").post(forgetPassword);
-router.route("/updatePassword/:token").post(async (req, res) => {
-  try {
-    const { token } = req.params;
-    const { newPassword } = req.body;
 
-    if (!newPassword) {
-      return res.status(400).json({ message: "New password is required" });
-    }
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    const user = await User.findById(decoded.id);
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-    if (user.verificationEmailToken.token !== token) {
-      return res.status(400).json({ message: "Invalid token" });
-    }
-    if (user.verificationEmailToken.used) {
-      return res.status(400).json({ message: "Token has already been used" });
-    }
-    
-
-    user.passwordSchema.password = newPassword;
-    user.verificationEmailToken.used = true; // Mark the token as used
-  
-    await user.save();
-
-    return res.status(200).json({ message: "Password updated successfully" });
-  } catch (error) {
-    console.error("Error in updatePassword:", error);
-    return res.status(500).json({ message: "Internal server error" });
-  }
-
-});
 router.route("/changeEmail").post(verifyUser,changeEmail)
 router.route("/toggleProfileVisiblity").post(verifyUser,toggleProfileVisiblity)
 router.route("/handleRequest/:targetUsername").post(verifyUser,handleRequest)
@@ -107,4 +81,53 @@ router.route("/isemailVerified/:username").get(async (req, res) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 });
+router.route("/jwtverify/:token").get(verifyUser, async (req, res) => {
+  try {
+    const { token } = req.params;
+    
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    if (!decoded || !decoded.id) {
+      return res.status(401).json({ valid: false });
+    }
+   const user = await User.findById(decoded.id);
+    if (!user) {
+      return res.status(404).json({ valid: false });
+    }
+    if (user.verificationEmailToken.token !== token) {
+      return res.status(400).json({ valid: false });
+    }
+    if (user.verificationEmailToken.used) {
+      return res.status(400).json({ valid: false });
+    }
+
+   const tokenz = generateJWT(user, "15m");
+
+   return res.status(200)
+   .json({ valid: true, token: tokenz }
+
+   );
+  } catch (error) {
+    console.error("Error verifying JWT:", error);
+    return res.status(401).json({ valid: false });
+  }
+});
+router.route("/changePass").post(async (req, res) => {
+  const { token, newPassword } = req.body;
+  if (!token || !newPassword) {
+    return res.status(400).json({ message: "Token and new password are required" });
+  }
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    user.password = newPassword;
+    await user.save({ validateBeforeSave: true });
+    return res.status(200).json({ message: "Password changed successfully" });
+  } catch (error) {
+    console.error("Error changing password:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+})
 export default router;

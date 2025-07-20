@@ -65,7 +65,9 @@ const signup = async (req, res) => {
     "verify your email",
     "verifyemail"
   );
-
+  newUser.verificationEmailToken.token = token;
+  newUser.verificationEmailToken.used = false; // Ensure the token is not marked as used initially
+  await newUser.save({ validateBeforeSave: false });
   return res.status(200).json({
     message: "Successfully registered. Please verify your email.",
   });
@@ -109,6 +111,9 @@ const login = async (req, res) => {
       "verify your email",
       "verifyemail"
     );
+    user.verificationEmailToken.token = token;
+    user.verificationEmailToken.used = false; // Ensure the token is not marked as used initially
+    await user.save({ validateBeforeSave: false });
     return res.status(401).json({
       message: "Please verify your email",
     });
@@ -299,6 +304,7 @@ const changePasswordIn = async (req, res) => {
         "reset your password",
         "updatePass"
       );
+      
       return res
         .status(429)
         .json({

@@ -34,8 +34,8 @@ export default function Login() {
       navigate("/verifyotp");
     } 
     if (error.response.data.message==="Please verify your email") {
-          navigate("/verifyemail");
-        
+      localStorage.setItem('username', `${username}`);
+      navigate("/verifyemail");
     }
 
           setMessage(error.response.data.message);

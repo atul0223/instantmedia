@@ -8,7 +8,7 @@ const sendVerificationEmail = async (email, token,subject,message,routee) => {
     },
   });
 
-  const url = `${process.env.FRONTENDURL}/${routee}/${token}`;
+  const url = `${process.env.FRONTENDURL}/${routee}?token=${token}`;
 
   await transporter.sendMail({
     from: `"Your App" <${process.env.EMAIL_USER}>`,
