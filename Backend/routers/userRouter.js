@@ -81,7 +81,7 @@ router.route("/isemailVerified/:username").get(async (req, res) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 });
-router.route("/jwtverify/:token").get(verifyUser, async (req, res) => {
+router.route("/jwtverify/:token").get( async (req, res) => {
   try {
     const { token } = req.params;
     
@@ -101,7 +101,7 @@ router.route("/jwtverify/:token").get(verifyUser, async (req, res) => {
     }
 
    const tokenz = generateJWT(user, "15m");
-
+   
    return res.status(200)
    .json({ valid: true, token: tokenz }
 
@@ -111,8 +111,9 @@ router.route("/jwtverify/:token").get(verifyUser, async (req, res) => {
     return res.status(401).json({ valid: false });
   }
 });
-router.route("/changePass").post(async (req, res) => {
-  const { token, newPassword } = req.body;
+router.route("/changePass/:token").post(async (req, res) => {
+  const {  newPassword } = req.body;
+  const {token} =req.params
   if (!token || !newPassword) {
     return res.status(400).json({ message: "Token and new password are required" });
   }
@@ -122,7 +123,9 @@ router.route("/changePass").post(async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-    user.password = newPassword;
+    user.passwordSchema.password = newPassword;
+    user.verificationEmailToken.token = ""; // Clear the token after use
+    user.verificationEmailToken.used = true; // Mark the token as used
     await user.save({ validateBeforeSave: true });
     return res.status(200).json({ message: "Password changed successfully" });
   } catch (error) {

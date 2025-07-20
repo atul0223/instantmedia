@@ -342,7 +342,7 @@ const forgetPassword = async (req, res) => {
     emailToken,
     "Password Reset",
     "reset your password",
-    "updatePass"
+    "changePass"
   );
   return res.status(200).json({
     message: "reset email sent successfully",

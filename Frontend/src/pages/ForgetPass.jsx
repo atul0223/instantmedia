@@ -2,8 +2,10 @@ import axios from "axios"
 import { useRef } from "react"
 import { BACKENDURL } from "../config"
 import { useState } from "react"
-import { Link } from "react-router-dom"
+import { Link ,useNavigate} from "react-router-dom"
+
 export default function ForgetPass() {
+  const navigate = useNavigate();
     const [message, setMessage] = useState("");
     const emailref =useRef()
     const forget =async ()=>{
@@ -13,6 +15,9 @@ export default function ForgetPass() {
         }
        const res = await axios.post(`${BACKENDURL}/user/forgetPassword`,userData,{withCredentials:true}).then((response)=>{
             setMessage(response.data.message);
+            setTimeout(() => {
+               navigate("/")
+            }, 2000);
         }).catch((error)=>{
             if (error.response) {
                 

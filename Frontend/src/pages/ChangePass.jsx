@@ -1,18 +1,54 @@
 import axios from "axios"
-import { useState } from "react"
+
+import { useState ,useEffect} from "react"
+import { BACKENDURL } from "../config"
+import { useNavigate } from "react-router-dom"
 
 export default function ChangePass() {
 const [message,setMessage] =useState("")
 const [pass,setPass] =useState("")
 const [con,setCon] =useState("")
 const[dis,setDis] =useState(true)
-
-const changePass =async()=>{
-    const userData ={
-      "newPassword":pass
+const [tokenz,setTokenz]=useState("")
+const [validUrl,setValidUrl]=useState(false)
+const navigate = useNavigate();
+useEffect(() => {
+  const verifyToken = async () => {
+    const token = new URLSearchParams(window.location.search).get("token");
+    try {
+      const response = await axios.get(`${BACKENDURL}/user/jwtverify/${token}`);
+      if (response.data.valid) { // small typo fix: "vadid" → "valid"
+        setValidUrl(true);
+        setTokenz(response.data.token);
+      }
+    } catch (err) {
+      console.error(err);
+      setValidUrl(false);
     }
-    
-}
+  };
+  verifyToken();
+}, []);
+
+if(validUrl){
+  const changePass =async()=>{
+   await axios.post(`${BACKENDURL}/user/changePass/${tokenz}`, { newPassword: pass }).then((response) => {
+      if (response.status === 200) {
+        setMessage("Password changed successfully");
+        setPass("");
+        setCon("");
+        setTimeout(() => {
+          navigate("/");
+        }, 1000);
+      } else {
+        setMessage("Failed to change password");
+      }
+    }).catch((error) => {
+      console.error("Error changing password:", error);
+      setMessage("Error changing password");
+    }
+
+    )
+  }
   return (
      <div className="h-screen w-screen flex justify-center items-center bg-blue-200">
       <div className="w-full h-full sm:w-fit sm:h-fit sm:border-b-blue-600 sm:p-20 p-20 sm:rounded-4xl bg-blue-100">
@@ -88,4 +124,14 @@ const changePass =async()=>{
       </div>
     
   )
+}
+else{
+  return (
+     <div className="h-screen w-screen flex justify-center items-center bg-blue-200">
+      <div className="w-full h-full sm:w-fit sm:h-fit sm:border-b-blue-600 sm:p-20 p-20 sm:rounded-4xl bg-blue-100">
+        <div> 
+    <h3>invalid or broken url</h3>
+    </div></div></div>
+  )
+}
 }
