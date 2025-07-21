@@ -6,6 +6,7 @@ import Otp from "./pages/Otp.jsx";
 import Emailverification from "./pages/Emailverification.jsx";
 import ForgetPass from "./pages/ForgetPass.jsx";
 import ChangePass from "./pages/ChangePass.jsx";
+import Profile from "./pages/Profile.jsx";
 
 
 
@@ -21,7 +22,7 @@ function App() {
    <Route path="/verifyemail" element={<Emailverification/>}></Route>
    <Route path="/ForgotPassword" element={<ForgetPass/>}></Route>
   <Route path="/changePass" element={<ChangePass/>}></Route>
-
+ <Route path="/profile" element={<Profile/>}></Route>
     </Routes>
    </BrowserRouter>
   

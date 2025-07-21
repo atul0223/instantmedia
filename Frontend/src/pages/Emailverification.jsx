@@ -84,9 +84,9 @@ export default function EmailVerification() {
           <div className="mt-10">
             {isVerified ? (
               <h5>Email verified ✅</h5>
-            ) :<div> (
-              <ClipLoader color="#36d7b7" size={50} className="sm:ml-40" />
-            )</div>}
+            ) :<div > 
+              <ClipLoader color="#36d7b7" size={50} className="sm:ml-28" />
+            </div>}
           </div>
         </div>
       </div>
