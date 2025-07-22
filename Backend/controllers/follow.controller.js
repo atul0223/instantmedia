@@ -61,10 +61,11 @@ const toggleFollow = async (req, res) => {
       });
       }
   } else if (!follow) {
+
     await UserProfile.findOneAndDelete({
       follower: userX._id,
       profile: user._id,
-      requestStatus:"accepted"
+      
     });
     res.status(200).json({
       message: "Unfollowed successfully",

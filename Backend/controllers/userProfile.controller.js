@@ -52,6 +52,25 @@ const getUserProfile = async (req, res) => {
           },
         },
       },
+       {
+        $lookup: {
+          from: "posts",
+          localField: "_id",
+          foreignField: "publisher",
+          as: "postList",
+        },
+      },
+        {
+           $addFields: {
+          postsCount: {
+            $size: "$postList",
+          },
+        },
+
+
+      }
+     
+      ,
       {
         $project: {
           fullName: 1,
@@ -60,7 +79,8 @@ const getUserProfile = async (req, res) => {
           followingCount: 1,
           isFollowing: 1,
           profilePic: 1,
-          profilePrivate :1
+          profilePrivate :1,
+          postsCount:1
         },
       },
     ]);
@@ -84,14 +104,23 @@ const getUserProfile = async (req, res) => {
           as: "postList",
         },
       },
+        {
+           $addFields: {
+          postsCount: {
+            $size: "$postList",
+          },
+        },
 
+
+      },
       {
         $project: {
           postList: 1,
+          postsCount:1
         },
       },
     ]);
-   const postsList = userPosts[0]?.postList || [];
+   const postsList = userPosts[0]  || 0  ; 
 
 
     if (!userProfile?.length) {
