@@ -18,6 +18,24 @@ export default function Profile() {
   const [isLoading, setIsLoading] = useState(false);
   const [sameUser, setSameUser] = useState(false);
  const [choice, setChoice] = useState(true);
+ const [blocked, setBlocked] = useState(false);
+ const toggleBlock = async () => {
+    setIsLoading(true);
+    try {
+      await axios
+        .post(
+          `${BACKENDURL}/profile/${username}/toggleBlock`,
+          { block: !blocked },
+          { withCredentials: true }
+        )
+        
+      await fetchUser(); // Refresh complete profile state
+    } catch (error) {
+      console.error("Toggle block failed:", error);
+    } finally {
+      setIsLoading(false);
+    }
+ }
   const toggleFollow = async () => {
     setIsLoading(true);
     try {
@@ -27,9 +45,7 @@ export default function Profile() {
           { follow: choice},
           { withCredentials: true }
         )
-        .then((response) => {
-          console.log(response);
-        });
+        
       await fetchUser(); // Refresh complete profile state
     } catch (error) {
       console.error("Toggle follow failed:", error);
@@ -45,8 +61,8 @@ export default function Profile() {
       });
 
       if (response.status === 200) {
+       
         
-
         const data = response.data?.profileDetails;
         setProfileData(data.profilePic);
         setUsername(data.username);
@@ -56,6 +72,7 @@ export default function Profile() {
         setFollowing(data.isFollowing);
         setRequestStatus(response?.data?.requestStatus);
         setSameUser(response.data.sameUser);
+        setBlocked(response.data.isBlocked);
       const newRequestStatus = response.data.requestStatus;
 setRequestStatus(newRequestStatus);
 
@@ -64,10 +81,10 @@ if (newRequestStatus === "requested" || newRequestStatus === "unfollow") {
 } else if (newRequestStatus === "follow") {
   setChoice(true);
 }
-        console.log(response.data.requestStatus);
         
         
-        if (newRequestStatus === "follow") {
+        
+        if (newRequestStatus === "unfollow") {
           setbtnType("btn btn-outline-dark");
         } else if (newRequestStatus === "requested") {
           setbtnType("btn btn-outline-secondary");
@@ -103,7 +120,7 @@ if (newRequestStatus === "requested" || newRequestStatus === "unfollow") {
           </div>
 
          {sameUser===true ?<p> </p>: <div className="mb-10 flex mt-3 gap-10">
-            <button
+           {blocked?<></>: <button
               type="button"
               className={btnType}
               value={following}
@@ -116,9 +133,9 @@ if (newRequestStatus === "requested" || newRequestStatus === "unfollow") {
     ? "Unfollow"
     : "Follow"}
 
-            </button>
-            <button type="button" className="btn btn-outline-danger">
-              Block
+            </button>}
+            <button type="button" className="btn btn-outline-danger" value={blocked} onClick={(toggleBlock)}>
+              {blocked ? "Unblock" : "Block"}
             </button>
           </div>}
         </div>

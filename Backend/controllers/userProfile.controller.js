@@ -14,6 +14,7 @@ const getUserProfile = async (req, res) => {
       sameUser =true;
     
     }
+    const isBlocked = user.blockedUsers.includes(targetUser._id);
     const followRelation = await UserProfile.findOne({
       profile: targetUser._id,
       follower: user._id,
@@ -50,6 +51,7 @@ const getUserProfile = async (req, res) => {
           as: "followers",
         },
       },
+   
       {
         $lookup: {
           from: "userprofiles",
@@ -103,7 +105,7 @@ const getUserProfile = async (req, res) => {
       },
       {
         $project: {
-          fullName: 1,
+         
           username: 1,
           followersCount: 1,
           followingCount: 1,
@@ -111,6 +113,7 @@ const getUserProfile = async (req, res) => {
           profilePic: 1,
           profilePrivate: 1,
           postsCount: 1,
+         
         },
       },
     ]);
@@ -122,6 +125,7 @@ const getUserProfile = async (req, res) => {
         profileDetails: userProfile[0],
         requestStatus: requestStatus,
         sameUser: sameUser,
+        isBlocked: isBlocked,
         message: "profile is private follow first to see posts",
       });
     }
@@ -164,6 +168,7 @@ const getUserProfile = async (req, res) => {
       profileDetails: userProfile[0],
       posts: postsList,
          requestStatus: requestStatus, 
+      isBlocked: isBlocked,
       sameUser: sameUser, 
       message: "User profile fetched successfully",
     });
