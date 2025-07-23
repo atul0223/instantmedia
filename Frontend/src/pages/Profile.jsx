@@ -12,25 +12,31 @@ export default function Profile() {
   const [followers, setFollowers] = useState(0);
   const [followings, setFollowings] = useState(0);
   const [following, setFollowing] = useState(false);
-  const [btnType,setbtnType] =useState("btn btn-primary")
+  const [requestStatus, setRequestStatus] = useState("follow");
+  const [btnType, setbtnType] = useState("btn btn-primary");
   const user = new URLSearchParams(window.location.search).get("user");
   const [isLoading, setIsLoading] = useState(false);
-
-const toggleFollow = async () => {
-  setIsLoading(true);
-  try {
-    await axios.post(
-      `${BACKENDURL}/profile/${username}/toggleFollow`,
-      { follow: !following },
-      { withCredentials: true }
-    );
-    await fetchUser(); // Refresh complete profile state
-  } catch (error) {
-    console.error("Toggle follow failed:", error);
-  } finally {
-    setIsLoading(false);
-  }
-};
+  const [sameUser, setSameUser] = useState(false);
+ const [choice, setChoice] = useState(true);
+  const toggleFollow = async () => {
+    setIsLoading(true);
+    try {
+      await axios
+        .post(
+          `${BACKENDURL}/profile/${username}/toggleFollow`,
+          { follow: choice},
+          { withCredentials: true }
+        )
+        .then((response) => {
+          console.log(response);
+        });
+      await fetchUser(); // Refresh complete profile state
+    } catch (error) {
+      console.error("Toggle follow failed:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const fetchUser = async () => {
     try {
@@ -39,6 +45,8 @@ const toggleFollow = async () => {
       });
 
       if (response.status === 200) {
+        
+
         const data = response.data?.profileDetails;
         setProfileData(data.profilePic);
         setUsername(data.username);
@@ -46,12 +54,25 @@ const toggleFollow = async () => {
         setFollowings(data.followingCount);
         setPostCount(data.postsCount);
         setFollowing(data.isFollowing);
-        if (data.isFollowing) {
-          setbtnType("btn btn-outline-dark")
+        setRequestStatus(response?.data?.requestStatus);
+        setSameUser(response.data.sameUser);
+      const newRequestStatus = response.data.requestStatus;
+setRequestStatus(newRequestStatus);
 
-        }
-        else{
-          setbtnType("btn btn-primary")
+if (newRequestStatus === "requested" || newRequestStatus === "unfollow") {
+  setChoice(false);
+} else if (newRequestStatus === "follow") {
+  setChoice(true);
+}
+        console.log(response.data.requestStatus);
+        
+        
+        if (newRequestStatus === "follow") {
+          setbtnType("btn btn-outline-dark");
+        } else if (newRequestStatus === "requested") {
+          setbtnType("btn btn-outline-secondary");
+        } else {
+          setbtnType("btn btn-primary");
         }
       } else {
         console.error("Failed to fetch user data");
@@ -81,7 +102,7 @@ const toggleFollow = async () => {
             <div>{followings} following</div>
           </div>
 
-          <div className="mb-10 flex mt-3 gap-10">
+         {sameUser===true ?<p> </p>: <div className="mb-10 flex mt-3 gap-10">
             <button
               type="button"
               className={btnType}
@@ -89,12 +110,17 @@ const toggleFollow = async () => {
               onClick={toggleFollow}
               disabled={isLoading}
             >
-              {following ? "unfollow" : "follow"}
+             {requestStatus === "requested"
+    ? "Requested"
+    : following
+    ? "Unfollow"
+    : "Follow"}
+
             </button>
             <button type="button" className="btn btn-outline-danger">
               Block
             </button>
-          </div>
+          </div>}
         </div>
         <div>
           <hr />

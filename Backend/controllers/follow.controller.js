@@ -56,17 +56,22 @@ const toggleFollow = async (req, res) => {
         });
       })
       .catch((err) => {
-      
+        console.log(err);
+        
         throw new ApiError(500, "Error following user");
       });
       }
   } else if (!follow) {
-
-    await UserProfile.findOneAndDelete({
+try {
+   await UserProfile.findOneAndDelete({
       follower: userX._id,
       profile: user._id,
       
     });
+} catch (error) {
+  console.log(error);
+}
+   
     res.status(200).json({
       message: "Unfollowed successfully",
       success: true,
