@@ -15,12 +15,10 @@ const extractPublicId = (url) => {
 };
 const newPosts = async (req,res) => {
    
-    const {user} =req.params;
+    
      const userX =req.user;
      const {title} =req.body;
-     if (userX.username !==user) {
-      throw new ApiError(403,"Forbidden Bad request")
-     }
+    
       const localFilePath = req.files?.post?.[0]?.path;
      if (!localFilePath) {
          throw new ApiError(402,"please provide a picture");
@@ -33,7 +31,7 @@ const newPosts = async (req,res) => {
      const post = await Post.create({
          title :title||Date(),   
          post :upload?.secure_url,
-         publisher:user
+         publisher:userX
  })
  return res.status(200).json({
      message:"successfully posted"

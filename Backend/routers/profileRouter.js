@@ -12,7 +12,7 @@ import { toggleBlock } from "../controllers/blocked.controller.js";
 router.get("/:username",verifyUser , getUserProfile);
 router.route("/:username/toggleFollow").post(verifyUser,toggleFollow);
 router.route("/:username/List").get(verifyUser,getFollowerFollowingList)
-router.route("/:username/post").post(verifyUser ,upload.fields([
+router.route("/post").post(verifyUser ,upload.fields([
      {
       name: "post",
       maxCount: 1,

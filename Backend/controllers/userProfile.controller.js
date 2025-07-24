@@ -126,7 +126,8 @@ const getUserProfile = async (req, res) => {
         requestStatus: requestStatus,
         sameUser: sameUser,
         isBlocked: isBlocked,
-        message: "profile is private follow first to see posts",
+        isPrivate:true,
+        posts:[]
       });
     }
     const userPosts = await User.aggregate([
@@ -143,21 +144,17 @@ const getUserProfile = async (req, res) => {
           as: "postList",
         },
       },
-      {
-        $addFields: {
-          postsCount: {
-            $size: "$postList",
-          },
-        },
-      },
+     
+      
       {
         $project: {
           postList: 1,
-          postsCount: 1,
+          
         },
       },
     ]);
-    const postsList = userPosts[0] || 0;
+  const postsList = userPosts[0]?.postList || [];
+
 
     if (!userProfile?.length) {
       throw new ApiError(404, "User profile does not exist");
@@ -170,7 +167,7 @@ const getUserProfile = async (req, res) => {
          requestStatus: requestStatus, 
       isBlocked: isBlocked,
       sameUser: sameUser, 
-      message: "User profile fetched successfully",
+      isPrivate:false
     });
   } catch (error) {
     return res.status(error.statusCode || 500).json({
