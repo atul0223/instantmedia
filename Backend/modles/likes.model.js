@@ -1,5 +1,5 @@
-import mongoose from "mongoose";
-import mongoos,{Schema} from "mongoose";
+
+import mongoose,{Schema} from "mongoose";
 
 const likeSchema =new Schema({
     post:{
@@ -16,5 +16,5 @@ const likeSchema =new Schema({
 },{
     timestamps:true
 })
-const Like =mongoos.model("Like",likeSchema)
+const Like =mongoose.model("Like",likeSchema)
 export default Like

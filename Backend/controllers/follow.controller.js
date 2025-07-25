@@ -40,8 +40,8 @@ const toggleFollow = async (req, res) => {
         });
       })
       .catch((err) => {
+      console.log(err);
       
-        throw new ApiError(500, "Error following user");
       });}
       else if (user.profilePrivate) {
          await UserProfile.create({

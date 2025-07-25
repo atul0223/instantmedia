@@ -74,7 +74,7 @@ const likeCountAndList =async(req,res)=>{
     
     const postLikes =await Post.aggregate([
        {$match:{
-   _id: new mongoose.Types.ObjectId(postId)
+   _id: new ObjectId("687168f33bc187c665b9639f")
   }},
    {
      $lookup: {
@@ -85,8 +85,22 @@ const likeCountAndList =async(req,res)=>{
      }
    },
    {
-    $addFields: {
-        likesCount: { $size: "$likesDoc" }
+   $addFields: {
+  likesCount: { $size: "$likesDoc" },
+  isLiked: {
+    $in: [
+     new ObjectId(req.user._id),
+      {
+        $map: {
+          input: "$likesDoc",
+          as: "like",
+          in: "$$like.likedBy"
+        }
+      }
+    ]
+  }
+
+
     }
    },
 
@@ -94,7 +108,7 @@ const likeCountAndList =async(req,res)=>{
     $project:{
         likesDoc:1,
         likesCount:1,
-
+        isLiked:1
     }
    }
     ])

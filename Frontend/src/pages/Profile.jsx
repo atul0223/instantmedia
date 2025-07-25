@@ -7,9 +7,9 @@ export default function Profile() {
   const [profileData, setProfileData] = useState(
     "https://res.cloudinary.com/dubvb4bha/image/upload/v1752772121/s6njjrsqysstlxneccxw.jpg"
   );
- 
+
   const [isPrivate, setisPrivate] = useState(false);
-  const [posts,setPosts] =useState([]);
+  const [posts, setPosts] = useState([]);
   const [username, setUsername] = useState("");
   const [postsCount, setPostCount] = useState(0);
   const [followers, setFollowers] = useState(0);
@@ -21,9 +21,9 @@ export default function Profile() {
   const [isLoading, setIsLoading] = useState(false);
   const [sameUser, setSameUser] = useState(false);
   const [choice, setChoice] = useState(true);
-  const [blocked, setBlocked] = useState(false); 
+  const [blocked, setBlocked] = useState(false);
   const [canSee, setCansee] = useState(true);
- 
+
   const toggleBlock = async () => {
     setIsLoading(true);
     try {
@@ -33,7 +33,7 @@ export default function Profile() {
         { withCredentials: true }
       );
 
-      await fetchUser(); 
+      await fetchUser();
     } catch (error) {
       console.error("Toggle block failed:", error);
     } finally {
@@ -68,7 +68,7 @@ export default function Profile() {
 
         const data = response.data?.profileDetails;
         setisPrivate(response.data.isPrivate);
-        setPosts(response.data.posts)
+        setPosts(response.data.posts);
         setProfileData(data.profilePic);
         setUsername(data.username);
         setFollowers(data.followersCount);
@@ -80,8 +80,6 @@ export default function Profile() {
         setBlocked(response.data.isBlocked);
         const newRequestStatus = response.data.requestStatus;
         setRequestStatus(newRequestStatus);
-        
-        
 
         if (
           newRequestStatus === "requested" ||
@@ -93,15 +91,15 @@ export default function Profile() {
         }
 
         if (
-         ( response.data.isPrivate === true &&
-          data.isFollowing === false) &&
-          response.data.isBlocked===true
+          response.data.isPrivate === true &&
+          data.isFollowing === false &&
+          response.data.isBlocked === true
         ) {
           setCansee(false);
         } else {
           setCansee(true);
         }
-        
+
         if (newRequestStatus === "unfollow") {
           setbtnType("btn btn-outline-dark");
         } else if (newRequestStatus === "requested") {
@@ -109,14 +107,11 @@ export default function Profile() {
         } else {
           setbtnType("btn btn-primary");
         }
-       const shouldHidePosts =
-  response.data.isBlocked === true ||
-  (response.data.isPrivate === true && data.isFollowing === false);
+        const shouldHidePosts =
+          response.data.isBlocked === true ||
+          (response.data.isPrivate === true && data.isFollowing === false);
 
-setCansee(!shouldHidePosts);
-
-
-
+        setCansee(!shouldHidePosts);
       } else {
         console.error("Failed to fetch user data");
       }
@@ -125,7 +120,6 @@ setCansee(!shouldHidePosts);
       setIsLoading(true);
     }
   };
-  
 
   useEffect(() => {
     fetchUser();
@@ -173,43 +167,50 @@ setCansee(!shouldHidePosts);
                 className="btn btn-outline-danger"
                 value={blocked}
                 onClick={toggleBlock}
-                 disabled={isLoading}
+                disabled={isLoading}
               >
                 {blocked ? "Unblock" : "Block"}
               </button>
             </div>
           )}
         </div>
-        <div>
+        <div className="mb-10">
           <hr />
-          <div className="flex justify-center">
-            <h5> posts</h5>
-          </div>
+         <h5 className="text-center text-stone-600 font-serif ">Moments</h5> 
           <hr />
         </div>
 
-      <div className="flex justify-center ">
-         <div >
-            {blocked ?<></> : canSee?
-  <div className="sm:flex flex-wrap gap-4">
-    {posts.map(doc => (
-      <div key={doc._id} className="w-full sm:w-60 bg-cover rounded shadow mb-4">
-        <img
-          src={doc.post}
-          alt="Post Image"
-          className="w-full h-auto object-cover mb-2"
-        />
-        <div className="p-2">
-          <h5 className="text-lg font-semibold mb-1">{doc.title}</h5>
-          <p className="text-sm text-gray-600">
-            <small>{doc.updatedAt}</small>
-          </p>
-        </div>
-      </div>
-    ))}
-  </div> : <Posts />}
-          </div>
+        <div className="flex justify-center pb-10">
+          {blocked ? (
+            <></>
+          ) : canSee ? (
+            <div className="sm:flex flex-wrap gap-4">
+              {Object.entries(posts).map(([key, postItem]) => (
+                postsCount===0?<div className="font-light mt-10 font-serif"><h4>no posts</h4></div>:
+                <div key={`${key}-${postItem._id}`} className=" shadow-gray-600 shadow-md ">
+                  
+                    <img
+                      src={postItem.postDetails.post}
+                      alt="Post Image"
+                      className="w-70 h-60 rounded  hover:brightness-75 p-3 pb-0"
+                    />
+                  
+                  
+               <div className="w-[280px] h-[60px] px-4 py-2 grid grid-cols-3 items-center justify-items-center rounded">
+  
+  <div> <img src="heart.png" alt="Like icon" className="h-6 w-6 object-contain hover:h-5" /></div>
+  <div><img src="comment.png" alt="Comment icon" className="h-6 w-6 object-contain  hover:h-5" /></div>
+  <div><img src="send.png" alt="Send icon" className="h-6 w-6 object-contain  hover:h-5" /></div>
+  
 </div>
+
+                </div>
+              ))}
+            </div>
+          ) : (
+            <Posts />
+          )}
+        </div>
       </div>
     </div>
   );

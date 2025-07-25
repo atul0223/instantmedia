@@ -3,12 +3,12 @@ const userProfileSchema = new mongoose.Schema({
     follower:{
         type:mongoose.Types.ObjectId,
         ref:"User",
-        unique:true
+       
     },
      profile:{
         type:mongoose.Types.ObjectId,
         ref:"User",
-        unique:true
+       
     },
     requestStatus:{
       type: String, enum: [ "accepted", "pending"],

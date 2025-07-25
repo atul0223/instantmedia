@@ -1,7 +1,6 @@
 import User from "../modles/user.model.js";
 import UserProfile from "../modles/UserProfile.model.js";
 import ApiError from "../utils/ApiError.js";
-
 const toggleBlock = async (req, res) => {
   const { username } = req.params;
   const { block } = req.body;

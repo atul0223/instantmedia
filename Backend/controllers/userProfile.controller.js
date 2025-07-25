@@ -130,30 +130,119 @@ const getUserProfile = async (req, res) => {
         posts:[]
       });
     }
-    const userPosts = await User.aggregate([
-      {
-        $match: {
-          username: username,
+    const userPosts = await User.aggregate( [
+  {
+    $match: { username:username } // Replace with actual query param
+  },
+  {
+    $lookup: {
+      from: "posts",
+      localField: "_id",
+      foreignField: "publisher",
+      as: "postList"
+    }
+  },
+   {
+  $addFields: {
+    "postList.postDetails": {
+      post: "$postList.post",
+      title: "$postList.title"
+    }
+  }
+}
+
+   ,
+  {
+    $unwind: {
+      path: "$postList",
+      preserveNullAndEmptyArrays: true
+    }
+  },
+  {
+    $lookup: {
+      from: "likes",
+      localField: "postList._id",
+      foreignField: "post",
+      as: "likes"
+    }
+  },
+  {
+    $lookup: {
+      from: "comments",
+      let: { postId: "$postList._id" },
+      pipeline: [
+        {
+          $match: {
+            $expr: { $eq: ["$post", "$$postId"] }
+          }
         },
-      },
-      {
-        $lookup: {
-          from: "posts",
-          localField: "_id",
-          foreignField: "publisher",
-          as: "postList",
+        {
+          $lookup: {
+            from: "users",
+            localField: "commenter",
+            foreignField: "_id",
+            as: "commenterDetails"
+          }
         },
-      },
-     
-      
-      {
-        $project: {
-          postList: 1,
-          
-        },
-      },
-    ]);
-  const postsList = userPosts[0]?.postList || [];
+        { $unwind: "$commenterDetails" },
+        {
+          $project: {
+            _id: 0,
+            comment: 1,
+            commenterDetails: {
+              username: "$commenterDetails.username",
+              profilePic: "$commenterDetails.profilePic"
+            }
+          }
+        }
+      ],
+      as: "comments"
+    }
+  },
+  {
+    $group: {
+      _id: "$_id",
+      username: { $first: "$username" },
+      profilePic: { $first: "$profilePic" },
+      postList: {
+        $push: {
+           postDetails: {
+      post: "$postList.post",
+      title: "$postList.title"
+    },
+
+          likesCount: { $size: "$likes" },
+          commentsCount: { $size: "$comments" },
+          publisherDetails: {
+            username: "$username",
+            profilePic: "$profilePic"
+          },
+          comments: "$comments"
+        }
+      }
+    }
+  },
+  {
+    $project: {
+      _id: 0,
+      postList: {
+        $arrayToObject: {
+          $map: {
+            input: { $range: [0, { $size: "$postList" }] },
+            as: "index",
+            in: {
+              k: {
+                $concat: ["P", { $toString: "$$index" }]
+              },
+              v: { $arrayElemAt: ["$postList", "$$index"] }
+            }
+          }
+        }
+      }
+    }
+  }
+]);
+  const postsList = userPosts[0].postList
 
 
     if (!userProfile?.length) {
