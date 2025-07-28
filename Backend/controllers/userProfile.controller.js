@@ -145,6 +145,7 @@ const getUserProfile = async (req, res) => {
    {
   $addFields: {
     "postList.postDetails": {
+       _id: "$postList._id",
       post: "$postList.post",
       title: "$postList.title"
     }
@@ -207,6 +208,7 @@ const getUserProfile = async (req, res) => {
       postList: {
         $push: {
            postDetails: {
+              _id: "$postList._id",
       post: "$postList.post",
       title: "$postList.title"
     },

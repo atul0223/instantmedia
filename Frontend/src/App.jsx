@@ -7,13 +7,14 @@ import Emailverification from "./pages/Emailverification.jsx";
 import ForgetPass from "./pages/ForgetPass.jsx";
 import ChangePass from "./pages/ChangePass.jsx";
 import Profile from "./pages/Profile.jsx";
+import UserContextProvider from "./context/userContextProvider.jsx";
 
 
 
 function App() {
 
   return (
-  <>
+ <UserContextProvider>
    <BrowserRouter>
    <Routes>
    <Route path="/" element={<Login />}></Route>
@@ -26,7 +27,7 @@ function App() {
     </Routes>
    </BrowserRouter>
   
-  </>
+  </UserContextProvider>
   )
 }
 

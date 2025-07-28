@@ -1,4 +1,5 @@
 
+import mongoose from "mongoose";
 import Post from "../modles/posts.model.js"
 import ApiError from "../utils/ApiError.js";
 import cloudinayUpload from "../utils/cloudinary.js"
@@ -41,7 +42,7 @@ const newPosts = async (req,res) => {
     const deletePost = async (req, res) => {
  
     const user = req.user;
-    const postId = req.params.postid;
+    const postId = new mongoose.Types.ObjectId( req.params.postid)
 
     const selectedPost = await Post.findById(postId);
     if (!selectedPost) throw new ApiError(404, "Post not found");

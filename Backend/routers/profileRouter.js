@@ -18,7 +18,7 @@ router.route("/post").post(verifyUser ,upload.fields([
       maxCount: 1,
     },
 ]),newPosts)
-router.route("/:username/deletePost/:postid").delete(verifyUser, deletePost);
+router.route("/deletePost/:postid").delete(verifyUser, deletePost);
 router.route("/:postId/togglelike").post(verifyUser,toggleLike);
 router.route("/:postId/likes").get(verifyUser,likeCountAndList);
 router.route("/:postId/addComment").post(verifyUser,addComment);
