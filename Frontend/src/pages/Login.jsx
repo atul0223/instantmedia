@@ -1,6 +1,7 @@
-import { useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
+import UserContext from "../context/UserContext";
 
 export default function Login() {
   const userref = useRef();
@@ -8,15 +9,22 @@ export default function Login() {
   const passref = useRef();
   const trustref = useRef();
   const [message, setMessage] = useState("");
+   const {loggedIn,setLoggedIn} =useContext(UserContext)
+   useEffect(() => {
+  if (loggedIn) navigate("/home");
+}, [loggedIn]);
+
   const login = async function () {
     const username = userref.current?.value;
     const password = passref.current?.value;
     const trustDevice = trustref.current?.checked;
     const userData = { username, password, trustDevice };
+   
     if (!username || !password) {
       setMessage("fields required");
     }
 
+  
    await axios
       .post("https://localhost:3000/user/login", userData, {
         withCredentials: true,
@@ -24,8 +32,11 @@ export default function Login() {
       .then((response) => {
          if (response.data.requiresOtp) {
       navigate("/verifyotp");
-    } 
+    } else{
         setMessage(response.data.message);
+        setLoggedIn(true)
+        localStorage.setItem("currentUserName",username)
+         navigate("/home")}
       })
       .catch((error) => {
        

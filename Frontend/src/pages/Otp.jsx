@@ -1,8 +1,9 @@
 import { useRef, useState } from 'react'
 import axios from 'axios'
-import { Link, useSearchParams } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 export default function Otp () {
+  const navigate =useNavigate()
   const otpref = useRef()
  const [message,setMessage]=useState("")
   const otpverify = async function () {
@@ -12,10 +13,13 @@ export default function Otp () {
    
     const userotp = {otp }
     console.log(userotp);
-    
+   
     const res =await axios.post('https://localhost:3000/user/verifyotp', userotp, {
   withCredentials: true,
 }).then((response) => {
+   setLoggedIn(true)
+        setCurrentUsername(username)
+         navigate("/home")
         console.log(response.data);
         
       })

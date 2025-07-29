@@ -3,7 +3,9 @@ import UserContext from "./UserContext";
 import axios from "axios";
 import { BACKENDURL } from "../config";
 export default function UserContextProvider({ children }) {
-  const [currentUserName, setCurrentUsername] = useState("");
+  const currentUserName =localStorage.getItem("currentUserName")
+  const [loggedIn,setLoggedIn] =useState(true)
+
   const [targetUser, setTargetUser] = useState({
     isPrivate:false,
     posts:{},
@@ -30,7 +32,7 @@ export default function UserContextProvider({ children }) {
       if (response.status === 200) {
        
        const data =response.data;
-       console.log(data);
+      
        setTargetUser({
         isPrivate:data.isPrivate,
         posts:data.posts,
@@ -64,8 +66,9 @@ export default function UserContextProvider({ children }) {
     <UserContext.Provider
       value={{
         currentUserName,
-        setCurrentUsername,
-       
+        
+       loggedIn,
+       setLoggedIn,
         fetchUser,
           targetUser,
           setTargetUser

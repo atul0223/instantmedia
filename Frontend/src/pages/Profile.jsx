@@ -3,16 +3,23 @@ import { Post, PostsPrivate } from "../component/Post";
 import axios from "axios";
 import { BACKENDURL } from "../config";
 import UserContext from "../context/UserContext";
+import Nav from "../component/Nav";
+import { Navigate, useNavigate } from "react-router-dom";
 export default function Profile() {
-    const {targetUser,fetchUser,setTargetUser} =useContext(UserContext)
-   
+    const {targetUser,fetchUser,loggedIn} =useContext(UserContext)
+   const navigate =useNavigate()
    const user = new URLSearchParams(window.location.search).get("user");
   const[btnType,setbtnType] =useState("btn btn-primary")
   const[choice,setChoice] =useState(false)
   const [isLoading,setIsLoading]=useState(false)
   const[canSee,setCansee]=useState(true)
   const fetchuser=async () => {
+      if (!loggedIn) {
+      navigate("/")
+    }
    const data = await fetchUser(user)
+   
+   
         const newRequestStatus = data.requestStatus;
        
         if (
@@ -24,16 +31,7 @@ export default function Profile() {
           setChoice(true);
         }
 
-        if (
-          data.isPrivate === true &&
-          data.profileDetails.isFollowing === false &&
-          data.isBlocked === true
-        ) {
-          setCansee(false);
-        } else {
-          setCansee(true);
-        }
-
+        
         if (newRequestStatus === "unfollow") {
           setbtnType("btn btn-outline-dark");
         } else if (newRequestStatus === "requested") {
@@ -42,12 +40,9 @@ export default function Profile() {
           setbtnType("btn btn-primary");
         }
         
-        const shouldHidePosts = data.isBlocked || (data.isPrivate && !data.profileDetails.isFollowing);
+        const shouldHidePosts = data.isBlocked || (data.isPrivate && !data.profileDetails.isFollowing && !data.sameUser);
 setCansee(!shouldHidePosts);
-const getFollowButtonLabel = (status, isFollowing) => {
-  if (status === "requested") return "Requested";
-  return isFollowing ? "Unfollow" : "Follow";
-};
+
 
 
  
@@ -89,6 +84,7 @@ const getFollowButtonLabel = (status, isFollowing) => {
 
   
   useEffect(() => {
+  
       fetchuser()
   }, [user]);
 
@@ -167,6 +163,7 @@ const getFollowButtonLabel = (status, isFollowing) => {
           )} 
         </div>
       </div>
+      <Nav/>
     </div>
   );
 }

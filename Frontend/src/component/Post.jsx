@@ -61,8 +61,8 @@ export function Post(props) {
             data_id={postItem.postDetails._id}
           >
             <img
-              src="delete.png"
-              alt="Delete"
+              src="/delete.png"
+              alt="/delete.png"
               data_id={postItem.postDetails._id}
             />
           </div>

@@ -119,7 +119,7 @@ const getUserProfile = async (req, res) => {
     ]);
     if (
       targetUser.profilePrivate === true &&
-      !(await isFollowed(targetUser._id, user._id) && !sameUser)
+      (! await isFollowed(targetUser._id, user._id) && !sameUser)
     ) {
       return res.json({
         profileDetails: userProfile[0],
@@ -139,15 +139,29 @@ const getUserProfile = async (req, res) => {
       from: "posts",
       localField: "_id",
       foreignField: "publisher",
+     
       as: "postList"
     }
   },
+  {
+  $set: {
+    postList: {
+      $sortArray: {
+        input: "$postList",
+        sortBy: { createdAt: -1 }
+      }
+    }
+  }
+}
+
+,
    {
   $addFields: {
     "postList.postDetails": {
        _id: "$postList._id",
       post: "$postList.post",
       title: "$postList.title"
+      
     }
   }
 }
@@ -156,7 +170,7 @@ const getUserProfile = async (req, res) => {
   {
     $unwind: {
       path: "$postList",
-      preserveNullAndEmptyArrays: true
+      preserveNullAndEmptyArrays: true,
     }
   },
   {
@@ -228,6 +242,7 @@ const getUserProfile = async (req, res) => {
     $project: {
       _id: 0,
       postList: {
+        
         $arrayToObject: {
           $map: {
             input: { $range: [0, { $size: "$postList" }] },

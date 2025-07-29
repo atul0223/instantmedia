@@ -2,7 +2,7 @@
     const postSchema = new Schema({
         title:{
             type:String,
-        default:Date().toString()
+        default:()=>new Date().toString()
         },
         post:{
             type:String,
