@@ -25,9 +25,13 @@ export default function HomePage() {
   const LoadPosts = async () => {
     const response = await axios.get(`${BACKENDURL}/home/`, {
       withCredentials: true,
-    }).catch(err => {setLoggedIn(false);
+    }).catch(err => {
+      console.log(err);
+      
+      setLoggedIn(false);
      navigate("/")});
   
+    console.log(response);
     
     setPosts(response.data.feedPosts);
   };

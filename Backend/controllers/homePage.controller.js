@@ -40,8 +40,8 @@ const homePage = async (req, res) => {
           foreignField: "publisher",
           as: "postList",
         },
-      },
-     
+      }
+     ,
   {
   $set: {
     postList: {
@@ -71,7 +71,16 @@ const homePage = async (req, res) => {
       path: "$postList",
       preserveNullAndEmptyArrays: true,
     }
-  },
+  },{
+  $lookup: {
+    from: "users",
+    localField: "postList.publisher",
+    foreignField: "_id",
+    as: "publisherDetails"
+  }
+},
+{ $unwind: "$publisherDetails" }
+,
   {
     $lookup: {
       from: "likes",
@@ -128,10 +137,11 @@ const homePage = async (req, res) => {
 
           likesCount: { $size: "$likes" },
           commentsCount: { $size: "$comments" },
-          publisherDetails: {
-            username: "$username",
-            profilePic: "$profilePic"
-          },
+        publisherDetails: {
+  username: "$publisherDetails.username",
+  profilePic: "$publisherDetails.profilePic"
+}
+,
           comments: "$comments"
         }
       }
