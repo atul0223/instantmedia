@@ -1,5 +1,5 @@
 import React, { useContext, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FaHome, FaSearch, FaBell, FaUser, FaPlus } from "react-icons/fa";
 import UserContext from "../context/UserContext";
 import { useRef } from "react";
@@ -8,23 +8,23 @@ import { BACKENDURL } from "../config";
 export default function Nav() {
   const { currentUserName, setSelectedPost } = useContext(UserContext);
   const fileInputRef = useRef(null);
-  const[data ,setData] =useState([])
+  const [data, setData] = useState([]);
   const [searching, setSearching] = useState(false);
   const [targetSearch, setTargetSearch] = useState("");
   const handlePickPhoto = () => {
     fileInputRef.current.click();
   };
-const handleSearch =async(e)=>{
-    setTargetSearch(e.target.value)
+  const handleSearch = async (e) => {
+    setTargetSearch(e.target.value);
 
-   const res = await axios.get(`${BACKENDURL}/home/search`,{
-      params: { query :e.target.value},
-      withCredentials:true
-    },).catch(err => console.log(err))
-  setData(res.data)
-  
-    
-}
+    const res = await axios
+      .get(`${BACKENDURL}/home/search`, {
+        params: { query: e.target.value },
+        withCredentials: true,
+      })
+      .catch((err) => console.log(err));
+    setData(res.data);
+  };
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -35,14 +35,13 @@ const handleSearch =async(e)=>{
   };
   const openSearch = async () => {
     setSearching(true);
-
   };
 
   const navigate = useNavigate();
   if (searching) {
     return (
-      <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-baseline justify-center pt-2">
-        <div className="sticky bottom-4 w-82 bg-zinc-100 shadow-lg z-50 rounded-full ">
+      <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-baseline justify-center pt-2 ">
+        <div className="fixed top-4 w-82 bg-zinc-100 shadow-lg z-50 rounded-full ">
           <div className="flex justify-between items-center px-6 py-3 relative">
             <input
               type="text"
@@ -50,6 +49,7 @@ const handleSearch =async(e)=>{
               placeholder="Search people"
               value={targetSearch}
               onChange={handleSearch}
+              autoFocus
             />
             <img
               src="close.png"
@@ -59,10 +59,31 @@ const handleSearch =async(e)=>{
             />
           </div>
         </div>
-      <div className="">  {targetSearch && data.map(result =>{ 
-          return <h1 className="bg-black">{result.username}</h1>
-          
-        })}</div>
+        <div className="mt-23">
+          {targetSearch &&
+            data.map((result) => {
+              return (
+                <div
+                  className="flex w-82 rounded-full bg-blue-200 m-1 shadow-2xl shadow-black"
+                  key={result._id}
+                  onClick={() => {
+                    navigate(`/profile?user=${result.username}`);
+                    setSearching(false);
+                  }}
+                >
+                  <Link>
+                    <img
+                      src={result.profilePic}
+                      alt=""
+                      className="w-10 h-10 rounded-full m-3 "
+                    />
+                  </Link>
+
+                  <Link className="mt-4">{result.username}</Link>
+                </div>
+              );
+            })}
+        </div>
       </div>
     );
   } else {
