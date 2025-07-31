@@ -22,7 +22,7 @@ const newPosts = async (req,res) => {
     
       const localFilePath = req.files?.post?.[0]?.path;
      if (!localFilePath) {
-         throw new ApiError(402,"please provide a picture");
+         throw new ApiError(403,"please provide a picture");
          
      }
      const upload =await cloudinayUpload(localFilePath)

@@ -1,14 +1,18 @@
 import axios from "axios"
-import { useRef } from "react"
+import { useContext, useRef } from "react"
 import { BACKENDURL } from "../config"
 import { useState } from "react"
 import { Link ,useNavigate} from "react-router-dom"
+import UserContext from "../context/UserContext"
+import Loading from "../component/Loading"
 
 export default function ForgetPass() {
   const navigate = useNavigate();
+  const { loading,setLoading} =useContext(UserContext)
     const [message, setMessage] = useState("");
     const emailref =useRef()
     const forget =async ()=>{
+      setLoading(true)
         const email=emailref.current?.value
         const userData ={
             email
@@ -31,11 +35,12 @@ export default function ForgetPass() {
             }
         })
       
-        
+        setLoading(false)
         
     }
   return (
        <div className='h-screen w-screen flex justify-center items-center bg-blue-200 '>
+        <Loading/>
       <div className='flex justify-center w-full h-full sm:w-fit sm:h-fit sm:border-b-blue-600 p-25 sm:pt-12 sm:pb-12 sm:rounded-4xl bg-blue-100 '>
        <div>
           <div className="mb-6 ">

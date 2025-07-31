@@ -4,9 +4,10 @@ import axios from "axios";
 import { BACKENDURL } from "../config";
 import UserContext from "../context/UserContext";
 import Nav from "../component/Nav";
-import { Navigate, useNavigate } from "react-router-dom";
+import {  useNavigate } from "react-router-dom";
+import Loading from "../component/Loading";
 export default function Profile() {
-    const {targetUser,fetchUser,loggedIn} =useContext(UserContext)
+    const {targetUser,fetchUser,loggedIn,setLoading} =useContext(UserContext)
    const navigate =useNavigate()
    const user = new URLSearchParams(window.location.search).get("user");
   const[btnType,setbtnType] =useState("btn btn-primary")
@@ -14,6 +15,7 @@ export default function Profile() {
   const [isLoading,setIsLoading]=useState(false)
   const[canSee,setCansee]=useState(true)
   const fetchuser=async () => {
+    setLoading(true)
       if (!loggedIn) {
       navigate("/")
     }
@@ -42,7 +44,7 @@ export default function Profile() {
         
         const shouldHidePosts = data.isBlocked || (data.isPrivate && !data.profileDetails.isFollowing && !data.sameUser);
 setCansee(!shouldHidePosts);
-
+setLoading(false)
 
 
  
@@ -84,14 +86,18 @@ setCansee(!shouldHidePosts);
 
   
   useEffect(() => {
-  
+      
       fetchuser()
+      
   }, [user]);
 
   return (
     <div className="w-full min-h-screen bg-blue-100 sm:pl-20 sm:pr-20 md:pl-30 md:pr-30 lg:pl-30 lg:pr-30 xl:pl-50 xl:pr-50 pl-4 pr-4">
-      <div>
-        <div className="h-100  w-full flex flex-wrap justify-center sm:pt-20 pt-20 gap-4  ">
+      <div >
+        <Loading/>
+        <div className="flex justify-end">   {targetUser.sameUser?<div className="w-10 h-10 mt-4 "><img src="setting.png" alt="" className=" hover:w-9 hover:h-9 hover:mt-1" /></div>:<></>}</div>
+     
+        <div className="h-100  w-full flex flex-wrap justify-center pt-15 gap-4  ">
           <div className="rounded-full sm:w-45 sm:h-45 w-30 h-30 overflow-hidden ">
             <img src={targetUser.profilePic} className="object-cover w-full h-full" />
           </div>

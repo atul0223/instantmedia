@@ -1,11 +1,13 @@
-import { use, useRef, useState } from "react";
+import { use, useContext, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from 'axios';
-import { useEffect } from "react";
+
 import { BACKENDURL } from "../config";
+import UserContext from "../context/UserContext";
+import Loading from "../component/Loading";
 export default function Signup () {
   const [acceptpolicy, setAcceptPolicy] = useState(false)
- 
+ const [setLoading] =useContext(UserContext)
   const [pass,setPass]=useState("")
   const [message, setMessage] = useState("");
   const userref=useRef()
@@ -14,6 +16,7 @@ export default function Signup () {
   const emailref=useRef()
   const navigate =useNavigate()
   const signup=async function(){
+    setLoading(true)
     const username=userref.current.value
     const password =passref.current.value
     const fullName=fullNameref.current.value
@@ -59,14 +62,14 @@ if(!password.includes("@") && !password.includes("#") && !password.includes("$")
         }
       });
     localStorage.setItem('username', `${username}`) 
-     
+     setLoading(false)
     
   }
   return (
     
     <div className='h-screen w-screen flex justify-center items-center bg-blue-200 '>
       <div className='flex justify-center w-full h-full sm:w-fit sm:h-fit sm:border-b-blue-600 p-25 sm:pt-12 sm:pb-12 sm:rounded-4xl bg-blue-100 '>
-       
+       <Loading/>
         <form action=''> <div className="mb-6  ml-2 ">
           <h2>!! Welcome !!</h2>
                   </div>

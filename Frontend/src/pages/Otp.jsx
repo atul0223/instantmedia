@@ -12,15 +12,16 @@ export default function Otp () {
     const otp = otpref.current?.value
    
     const userotp = {otp }
-    console.log(userotp);
+   
    
     const res =await axios.post('https://localhost:3000/user/verifyotp', userotp, {
   withCredentials: true,
 }).then((response) => {
    setLoggedIn(true)
         setCurrentUsername(username)
-         navigate("/home")
-        console.log(response.data);
+        setTimeout(()=>( navigate("/home")),1000)
+        
+       
         
       })
       .catch((error) => { 
@@ -29,6 +30,7 @@ export default function Otp () {
           setMessage(error.response.data.message);
         } else {
           setMessage('Something went wrong.');
+          navigate("/home")
         }
       });
 

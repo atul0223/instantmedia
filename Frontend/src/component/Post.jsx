@@ -2,6 +2,7 @@ import axios from "axios";
 import { useContext } from "react";
 import UserContext from "../context/UserContext";
 import { BACKENDURL } from "../config";
+import Loading from "./Loading";
 export function PostsPrivate() {
   return (
     <div className="flex justify-center mt-7 h-52">
@@ -22,10 +23,11 @@ export function Post(props) {
   const key = props.postKey;
   const postItem = props.postItem;
   const sameUser = props.sameUser;
-  const { fetchUser, targetUser, setTargetUser } = useContext(UserContext);
+  const { fetchUser, targetUser, loggedIn,setLoading } = useContext(UserContext);
 
   const handleDeletePosts = async (postId) => {
     try {
+      setLoading(true)
       await axios.delete(`${BACKENDURL}/profile/deletePost/${postId}`, {
         withCredentials: true,
       });
@@ -33,9 +35,11 @@ export function Post(props) {
     } catch (error) {
       console.error("Delete post failed:", error);
     }
+    setLoading(false)
   };
   return (
     <div>
+      <Loading/>
       <div
         key={`${key}-${postItem._id}`}
         className=" shadow-gray-600 shadow-md h-fit w-fit rounded-2xl sm:mb-0  relative group overflow-hidden"

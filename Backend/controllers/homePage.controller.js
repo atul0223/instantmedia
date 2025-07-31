@@ -176,7 +176,7 @@ const homePage = async (req, res) => {
   } else if (!nillFollowing) {
    const feedPosts = await Post.aggregate([
      
-  { $sample: { size: 15 } },
+  { $sample: { size: 50 } },
  { $sort: { createdAt: -1 } },
 
   {

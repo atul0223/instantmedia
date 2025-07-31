@@ -1,8 +1,10 @@
 import axios from "axios"
 
-import { useState ,useEffect} from "react"
+import { useState ,useEffect, useContext} from "react"
 import { BACKENDURL } from "../config"
 import { useNavigate } from "react-router-dom"
+import UserContext from "../context/UserContext"
+import Loading from "../component/Loading"
 
 export default function ChangePass() {
 const [message,setMessage] =useState("")
@@ -12,7 +14,9 @@ const[dis,setDis] =useState(true)
 const [tokenz,setTokenz]=useState("")
 const [validUrl,setValidUrl]=useState(false)
 const navigate = useNavigate();
+const { loading,setLoading} =useContext(UserContext)
 useEffect(() => {
+  setLoading(true)
   const verifyToken = async () => {
     const token = new URLSearchParams(window.location.search).get("token");
     try {
@@ -27,10 +31,12 @@ useEffect(() => {
     }
   };
   verifyToken();
+   setLoading(false)
 }, []);
 
 if(validUrl){
   const changePass =async()=>{
+    setLoading(true)
    await axios.post(`${BACKENDURL}/user/changePass/${tokenz}`, { newPassword: pass }).then((response) => {
       if (response.status === 200) {
         setMessage("Password changed successfully");
@@ -48,9 +54,11 @@ if(validUrl){
     }
 
     )
+    setLoading(false)
   }
   return (
      <div className="h-screen w-screen flex justify-center items-center bg-blue-200">
+      <Loading/>
       <div className="w-full h-full sm:w-fit sm:h-fit sm:border-b-blue-600 sm:p-20 p-20 sm:rounded-4xl bg-blue-100">
         <div> 
              <div className="form-floating mb-2">

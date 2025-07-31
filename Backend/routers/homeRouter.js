@@ -16,7 +16,7 @@ router.route('/search').get(verifyUser, async(req, res) => {
                 { username: { $regex: query, $options: 'i' } },
                 { fullName: { $regex: query, $options: 'i' } }
             ]
-        }).select('-passwordSchema -refreshToken -verificationEmailToken -isVerified -trustDevice -otp -createdAt -updatedAt -__v -trustedDevices');
+        }).select('-passwordSchema -refreshToken -verificationEmailToken -isVerified -trustDevice -otp -createdAt -updatedAt -__v -trustedDevices -email -fullName -profilePrivate -blockedUsers');
         
         return res.status(200).json(users);
     } catch (error) {

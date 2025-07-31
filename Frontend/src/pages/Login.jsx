@@ -2,6 +2,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import UserContext from "../context/UserContext";
+import Loading from "../component/Loading";
 
 export default function Login() {
   const userref = useRef();
@@ -9,12 +10,14 @@ export default function Login() {
   const passref = useRef();
   const trustref = useRef();
   const [message, setMessage] = useState("");
-   const {loggedIn,setLoggedIn} =useContext(UserContext)
+   const {loggedIn,setLoggedIn,loading,setLoading} =useContext(UserContext)
    useEffect(() => {
+     setLoading(false)
   if (loggedIn) navigate("/home");
 }, [loggedIn]);
 
   const login = async function () {
+   setLoading(true)
     const username = userref.current?.value;
     const password = passref.current?.value;
     const trustDevice = trustref.current?.checked;
@@ -31,15 +34,17 @@ export default function Login() {
       })
       .then((response) => {
          if (response.data.requiresOtp) {
+          setLoading(false)
       navigate("/verifyotp");
     } else{
         setMessage(response.data.message);
         setLoggedIn(true)
+         setLoading(false)
         localStorage.setItem("currentUserName",username)
          navigate("/home")}
       })
       .catch((error) => {
-       
+        setLoading(false)
         if (error.response) {
          if (error.response.data.requiresOtp) {
       navigate("/verifyotp");
@@ -56,11 +61,12 @@ export default function Login() {
         }
       });
 
-   
+   setLoading(false)
   };
 
   return (
     <div className="h-screen w-screen flex justify-center items-center bg-blue-200">
+      <Loading/>
       <div className="flex justify-center w-full h-full sm:w-fit sm:h-fit sm:border-b-blue-600 p-25 sm:rounded-4xl bg-blue-100 ">
         <div>
           <div className="mb-6 ">
