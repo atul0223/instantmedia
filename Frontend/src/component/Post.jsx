@@ -23,7 +23,7 @@ export function Post(props) {
   const key = props.postKey;
   const postItem = props.postItem;
   const sameUser = props.sameUser;
-  const { fetchUser, targetUser, loggedIn,setLoading } = useContext(UserContext);
+  const { fetchUser, targetuser, loggedIn,setLoading } = useContext(UserContext);
 
   const handleDeletePosts = async (postId) => {
     try {
@@ -31,7 +31,7 @@ export function Post(props) {
       await axios.delete(`${BACKENDURL}/profile/deletePost/${postId}`, {
         withCredentials: true,
       });
-      fetchUser(targetUser.username);
+      fetchUser(targetuser.username);
     } catch (error) {
       console.error("Delete post failed:", error);
     }

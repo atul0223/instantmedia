@@ -3,11 +3,11 @@ import UserContext from "./UserContext";
 import axios from "axios";
 import { BACKENDURL } from "../config";
 export default function UserContextProvider({ children }) {
-  const currentUserName = localStorage.getItem("currentUserName");
+  const actualuser1 = localStorage.getItem("actualuser1");
   const [loggedIn, setLoggedIn] = useState(true);
   const [selectedPost, setSelectedPost] = useState();
   const [loading,setLoading] =useState(false)
-  const [targetUser, setTargetUser] = useState({
+  const [targetuser, setTargetUser] = useState({
     isPrivate: false,
     posts: {},
     profilePic:
@@ -59,12 +59,12 @@ export default function UserContextProvider({ children }) {
   return (
     <UserContext.Provider
       value={{
-        currentUserName,
+        actualuser1,
         selectedPost,
         loggedIn,
         setLoggedIn,
         fetchUser,
-        targetUser,
+        targetuser,
         setTargetUser,
         setSelectedPost,
         loading,setLoading

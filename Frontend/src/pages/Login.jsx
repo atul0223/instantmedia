@@ -35,15 +35,17 @@ export default function Login() {
       .then((response) => {
          if (response.data.requiresOtp) {
           setLoading(false)
+                 localStorage.setItem("actualuser1",username)
       navigate("/verifyotp");
     } else{
         setMessage(response.data.message);
         setLoggedIn(true)
          setLoading(false)
-        localStorage.setItem("currentUserName",username)
+        localStorage.setItem("actualuser1",username)
          navigate("/home")}
       })
       .catch((error) => {
+          localStorage.setItem("actualuser1",username)
         setLoading(false)
         if (error.response) {
          if (error.response.data.requiresOtp) {

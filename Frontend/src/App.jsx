@@ -7,9 +7,10 @@ import Emailverification from "./pages/Emailverification.jsx";
 import ForgetPass from "./pages/ForgetPass.jsx";
 import ChangePass from "./pages/ChangePass.jsx";
 import Profile from "./pages/Profile.jsx";
-import UserContextProvider from "./context/userContextProvider.jsx";
+import UserContextProvider from "./context/UserContextProvider.jsx";
 import HomePage from "./pages/HomePage.jsx";
 import AddPost from "./pages/AddPost.jsx";
+
 
 
 
@@ -28,6 +29,7 @@ function App() {
  <Route path="/profile" element={<Profile/>}></Route>
  <Route path="/home" element={<HomePage/>}></Route>
 <Route path="/upload" element={<AddPost/>}></Route>
+
     </Routes>
    </BrowserRouter>
   

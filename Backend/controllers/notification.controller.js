@@ -1,16 +1,42 @@
-import { Notification } from "../modles/notifcation.model";
-const getNotifications = async (req, res) => {
-  try {
-    
-    const notifications = await Notification.find({ recipient: req.user._id })
-      .populate("sender", "username profilePic")
-      .populate("post", "caption") // optional
-      .sort({ createdAt: -1 });
 
-    res.status(200).json({ success: true, notifications });
-  } catch (err) {
-    res.status(500).json({ success: false, message: "Failed to fetch notifications" });
+import mongoose from "mongoose";
+import UserProfile from "../modles/UserProfile.model.js";
+
+const getNotifications = async (req, res) => {
+
+  const user =req.user
+    const data =await UserProfile.aggregate([{
+  $match:{
+    profile:new mongoose.Types.ObjectId(user._id),
+   
   }
+},{
+  $sort: {
+    createdAt:-1
+  }
+},{
+  $lookup: {
+    from: "users",
+    localField: "follower",
+    foreignField: "_id",
+    as:"requester"
+  }
+},{
+  $unwind: {
+    path:"$requester",
+ 
+    preserveNullAndEmptyArrays:true
+  }
+},{
+  $project: {
+    requestStatus:1,
+    "requester.username":1,
+    "requester.profilePic":1,
+    createdAt:1
+  }
+}]
+)
+return res.status(200).json({message:"fetched successfully",notifications:data})
 };
 const markAsRead = async (req, res) => {
   try {

@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import Loading from "../component/Loading";
 export default function AddPost() {
   const [preview, setPreview] = useState(null);
-  const { selectedPost ,currentUserName,loading,setLoading} = useContext(UserContext);
+  const { selectedPost ,actualuser1,loading,setLoading} = useContext(UserContext);
 const navigate =useNavigate()
   const [title, setTitle] = useState("");
 const handleUpload = async () => {
@@ -27,7 +27,7 @@ const handleUpload = async () => {
         "Content-Type": "multipart/form-data",
       },
     });
-    navigate(`/profile?user=${currentUserName}`)
+    navigate(`/profile?user=${actualuser1}`)
   } catch (error) {
     console.error("Upload error:", error);
     alert("Upload failed. Please try again.");

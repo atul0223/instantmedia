@@ -6,13 +6,48 @@ import { useRef } from "react";
 import axios from "axios";
 import { BACKENDURL } from "../config";
 export default function Nav() {
-  const { currentUserName, setSelectedPost } = useContext(UserContext);
+  const {actualuser1, setSelectedPost } = useContext(UserContext);
   const fileInputRef = useRef(null);
   const [data, setData] = useState([]);
   const [searching, setSearching] = useState(false);
+  const [notificationActive, setNotificationActive] = useState(false);
+  const [notifications, setNotifications] = useState([]);
   const [targetSearch, setTargetSearch] = useState("");
   const handlePickPhoto = () => {
     fileInputRef.current.click();
+  };
+  const handleAccept =async(username)=>{
+     const res = await axios
+      .post(`${BACKENDURL}/user/handleRequest/${username}`,{
+    "doAccept":true
+}, {
+        withCredentials: true,
+      })
+      .catch((err) => console.log(err));
+    console.log(res);
+
+  }
+  const handleReject =async(username)=>{
+     const res = await axios
+      .post(`${BACKENDURL}/user/handleRequest/${username}`,{
+    "doAccept":false
+}, {
+        withCredentials: true,
+      })
+      .catch((err) => console.log(err));
+    console.log(res);
+
+  }
+  const handleNotifications = async () => {
+    setNotificationActive(true);
+    const res = await axios
+      .get(`${BACKENDURL}/home/Notifications`, {
+        withCredentials: true,
+      })
+      .catch((err) => console.log(err));
+    console.log(res);
+
+    setNotifications(res.data.notifications);
   };
   const handleSearch = async (e) => {
     setTargetSearch(e.target.value);
@@ -23,6 +58,8 @@ export default function Nav() {
         withCredentials: true,
       })
       .catch((err) => console.log(err));
+      console.log(res);
+      
     setData(res.data);
   };
   const handleFileChange = (e) => {
@@ -38,6 +75,68 @@ export default function Nav() {
   };
 
   const navigate = useNavigate();
+  if (notificationActive) {
+    return (
+      <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-baseline justify-center pt-2 ">
+        <div className="fixed bottom-4 w-82 bg-zinc-100 shadow-lg z-50 rounded-full ">
+          <div className="flex justify-between items-center px-6 py-3 relative">
+            <h5 className="ml-18 mt-1 font-serif">Notifications</h5>
+            <img
+              src="close.png"
+              alt=""
+              className="w-6 h-6 ml-5 mb-1 hover:h-5 hover:w-5"
+              onClick={() => setNotificationActive(false)}
+            />
+          </div>
+        </div>
+        <div className="fixed bottom-23">
+          {notifications &&
+            notifications.slice(0, 8).map((result) => {
+              return (
+               <Link
+  to={`/profile?user=${result.requester.username}`}
+  key={result._id}
+  style={{ textDecoration: "none" }}
+  onClick={()=>{
+    setNotificationActive(false)
+  }}
+  targetuser ={result.requester.username}
+>
+  <div className="flex w-82 rounded-full bg-blue-200 m-1 shadow-2xl shadow-black">
+    <img
+      src={result.requester.profilePic}
+      alt=""
+      className="w-8 h-8 rounded-full ml-4 mr-2 mt-3 mb-3"
+      onError={(e) => {
+        e.target.onerror = null;
+        e.target.src =
+          "https://res.cloudinary.com/dubvb4bha/image/upload/v1752772121/s6njjrsqysstlxneccxw.jpg";
+      }}
+    />
+    <div className="mt-1 flex items-center">
+      <h6 className=" text-black">
+        @{result.requester.username}
+      </h6>
+    </div>
+    <div className="font-serif text-black flex items-center">
+      {result.requestStatus === "accepted" ? (
+       <div className="mt-3"> <p className="ml-1">Started following you</p></div>
+      ) : (
+        <div className="ml-1">
+          <small className="mr-10">wants to follow you</small>{" "}
+          <button className="btn btn-outline-success" onClick={()=>{handleAccept(result.requester.username)}}>accept</button> {" "}
+          <button className="btn btn-outline-danger"onClick={()=>{handleReject(result.requester.username)}}>reject</button>
+        </div>
+      )}
+    </div>
+  </div>
+</Link>
+              );
+            })}
+        </div>
+      </div>
+    );
+  }
   if (searching) {
     return (
       <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-baseline justify-center pt-2 ">
@@ -61,26 +160,29 @@ export default function Nav() {
         </div>
         <div className="mt-23">
           {targetSearch &&
-            data.map((result) => {
+            data.slice(0, 5).map((result) => {
               return (
-                <div
-                  className="flex w-82 rounded-full bg-blue-200 m-1 shadow-2xl shadow-black"
-                  key={result._id}
-                  onClick={() => {
-                    navigate(`/profile?user=${result.username}`);
-                    setSearching(false);
-                  }}
-                >
-                  <Link>
+                <Link to={`/profile?user=${result.username}`} key={result._id}  style={{ textDecoration: "none" }}>
+                  <div
+                    className="flex w-82 rounded-full bg-blue-200 m-1 shadow-2xl shadow-black"
+                    onClick={() => {
+                      setSearching(false);
+                    }}
+                  >
                     <img
                       src={result.profilePic}
                       alt=""
                       className="w-10 h-10 rounded-full m-3 "
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src =
+                          "https://res.cloudinary.com/dubvb4bha/image/upload/v1752772121/s6njjrsqysstlxneccxw.jpg";
+                      }}
                     />
-                  </Link>
 
-                  <Link className="mt-4">{result.username}</Link>
-                </div>
+                    <p className="mt-4 text-black">@{result.username}{" "}{`(${result.fullName})`}</p>
+                  </div>
+                </Link>
               );
             })}
         </div>
@@ -119,11 +221,14 @@ export default function Nav() {
             style={{ display: "none" }}
           />
 
-          <FaBell className="text-xl text-gray-600 hover:text-black" />
-          <FaUser
+          <FaBell
             className="text-xl text-gray-600 hover:text-black"
-            onClick={() => navigate(`/profile?user=${currentUserName}`)}
+            onClick={handleNotifications}
           />
+        <Link to={`https://localhost:5173/profile?user=${actualuser1}`}> <FaUser
+            className="text-xl text-gray-600 hover:text-black"
+           
+          /></Link> 
         </div>
       </div>
     );
