@@ -1,8 +1,7 @@
-
 import mongoose from "mongoose";
-import Post from "../modles/posts.model.js"
+import Post from "../modles/posts.model.js";
 import ApiError from "../utils/ApiError.js";
-import cloudinayUpload from "../utils/cloudinary.js"
+import cloudinayUpload from "../utils/cloudinary.js";
 import { v2 as cloudinary } from "cloudinary";
 const extractPublicId = (url) => {
   try {
@@ -14,52 +13,45 @@ const extractPublicId = (url) => {
     return null;
   }
 };
-const newPosts = async (req,res) => {
-   
-    
-     const userX =req.user;
-     const {title} =req.body;
-    
-      const localFilePath = req.files?.post?.[0]?.path;
-     if (!localFilePath) {
-         throw new ApiError(403,"please provide a picture");
-         
-     }
-     const upload =await cloudinayUpload(localFilePath)
-     if (!upload) {
-         throw new ApiError(500,"Error while uploading to cloudinary");
-     }
-     const post = await Post.create({
-         title :title||Date(),   
-         post :upload?.secure_url,
-         publisher:userX
- })
- return res.status(200).json({
-     message:"successfully posted"
- })
-   
-}
-    const deletePost = async (req, res) => {
- 
-    const user = req.user;
-    const postId = new mongoose.Types.ObjectId( req.params.postid)
+const newPosts = async (req, res) => {
+  const userX = req.user;
+  const { title } = req.body;
 
-    const selectedPost = await Post.findById(postId);
-    if (!selectedPost) throw new ApiError(404, "Post not found");
-
-    if (selectedPost.publisher.toString() !== user._id.toString()) {
-      throw new ApiError(403, "Not authorized for this action");
-    }
-
-    const publicId = extractPublicId(selectedPost.post);
-
-    const deleted = await Post.findOneAndDelete({ _id: postId });
-    if (!deleted) throw new ApiError(500, "Error while deleting the post");
-
-    await cloudinary.uploader.destroy(publicId);
-
-    return res.status(200).json({ message: "Successfully deleted post" });
-
-  
+  const localFilePath = req.files?.post?.[0]?.path;
+  if (!localFilePath) {
+    throw new ApiError(403, "please provide a picture");
+  }
+  const upload = await cloudinayUpload(localFilePath);
+  if (!upload) {
+    throw new ApiError(500, "Error while uploading to cloudinary");
+  }
+  const post = await Post.create({
+    title: title || Date(),
+    post: upload?.secure_url,
+    publisher: userX,
+  });
+  return res.status(200).json({
+    message: "successfully posted",
+  });
 };
-export {newPosts, deletePost}
+const deletePost = async (req, res) => {
+  const user = req.user;
+  const postId = new mongoose.Types.ObjectId(req.params.postid);
+
+  const selectedPost = await Post.findById(postId);
+  if (!selectedPost) throw new ApiError(404, "Post not found");
+
+  if (selectedPost.publisher.toString() !== user._id.toString()) {
+    throw new ApiError(403, "Not authorized for this action");
+  }
+
+  const publicId = extractPublicId(selectedPost.post);
+
+  const deleted = await Post.findOneAndDelete({ _id: postId });
+  if (!deleted) throw new ApiError(500, "Error while deleting the post");
+
+  await cloudinary.uploader.destroy(publicId);
+
+  return res.status(200).json({ message: "Successfully deleted post" });
+};
+export { newPosts, deletePost };

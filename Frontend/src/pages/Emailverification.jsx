@@ -6,12 +6,14 @@ import { useNavigate } from "react-router-dom";
 
 export default function EmailVerification() {
   const navigate = useNavigate();
-  const [message, setMessage] = useState("Varification Email sent successFully");
+  const [message, setMessage] = useState(
+    "Varification Email sent successFully"
+  );
   const [isVerified, setIsVerified] = useState(false);
   const token = new URLSearchParams(window.location.search).get("token");
 
   function delay(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   // Run verification via token
@@ -53,9 +55,12 @@ export default function EmailVerification() {
       while (!cancelled && !isVerified) {
         await delay(5000);
         try {
-          const res = await axios.get(`${BACKENDURL}/user/isemailVerified/${username}`, {
-            withCredentials: true,
-          });
+          const res = await axios.get(
+            `${BACKENDURL}/user/isemailVerified/${username}`,
+            {
+              withCredentials: true,
+            }
+          );
           if (res.data.isVerified) {
             setIsVerified(true);
             setMessage("✅ Email verified");
@@ -84,9 +89,11 @@ export default function EmailVerification() {
           <div className="mt-10">
             {isVerified ? (
               <h5>Email verified ✅</h5>
-            ) :<div > 
-              <ClipLoader color="#36d7b7" size={50} className="sm:ml-50" />
-            </div>}
+            ) : (
+              <div>
+                <ClipLoader color="#36d7b7" size={50} className="sm:ml-50" />
+              </div>
+            )}
           </div>
         </div>
       </div>

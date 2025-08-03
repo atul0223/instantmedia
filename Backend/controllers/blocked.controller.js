@@ -24,16 +24,15 @@ const toggleBlock = async (req, res) => {
     if (isBlocked) {
       throw new ApiError(400, "User is already blocked");
     }
- await UserProfile.deleteMany({
+    await UserProfile.deleteMany({
       follower: user._id,
-      profile: userExists._id
+      profile: userExists._id,
     });
-    
-    
+
     await User.findByIdAndUpdate(user._id, {
-      $addToSet: { blockedUsers: userExists._id }
+      $addToSet: { blockedUsers: userExists._id },
     });
-   
+
     return res.status(200).json({ message: "Successfully blocked" });
   }
 
@@ -43,7 +42,7 @@ const toggleBlock = async (req, res) => {
     }
 
     await User.findByIdAndUpdate(user._id, {
-      $pull: { blockedUsers: userExists._id }
+      $pull: { blockedUsers: userExists._id },
     });
 
     return res.status(200).json({ message: "Successfully unblocked" });

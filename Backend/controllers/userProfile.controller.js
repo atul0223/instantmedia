@@ -1,18 +1,18 @@
 import User from "../modles/user.model.js";
 import ApiError from "../utils/ApiError.js";
 import isFollowed from "../utils/isFollowed.js";
-import UserProfile from "../modles/UserProfile.model.js"; 
+import UserProfile from "../modles/UserProfile.model.js";
 const getUserProfile = async (req, res) => {
-  try { let sameUser =false;
+  try {
+    let sameUser = false;
     const { username } = req.params;
     const user = req.user;
     const targetUser = await User.findOne({ username }).select(
       "-password -refreshToken -verificationEmailToken -isVerified -trustedDevices -username"
     );
-   
-    if(targetUser._id.toString() === user._id.toString()) {
-      sameUser =true;
-    
+
+    if (targetUser._id.toString() === user._id.toString()) {
+      sameUser = true;
     }
     const isBlocked = user.blockedUsers.includes(targetUser._id);
     const followRelation = await UserProfile.findOne({
@@ -51,7 +51,7 @@ const getUserProfile = async (req, res) => {
           as: "followers",
         },
       },
-   
+
       {
         $lookup: {
           from: "userprofiles",
@@ -105,7 +105,6 @@ const getUserProfile = async (req, res) => {
       },
       {
         $project: {
-         
           username: 1,
           followersCount: 1,
           followingCount: 1,
@@ -113,154 +112,147 @@ const getUserProfile = async (req, res) => {
           profilePic: 1,
           profilePrivate: 1,
           postsCount: 1,
-         
         },
       },
     ]);
     if (
       targetUser.profilePrivate === true &&
-      (! await isFollowed(targetUser._id, user._id) && !sameUser)
+      !(await isFollowed(targetUser._id, user._id)) &&
+      !sameUser
     ) {
       return res.json({
         profileDetails: userProfile[0],
         requestStatus: requestStatus,
         sameUser: sameUser,
         isBlocked: isBlocked,
-        isPrivate:true,
-        posts:[]
+        isPrivate: true,
+        posts: [],
       });
     }
-    const userPosts = await User.aggregate( [
-  {
-    $match: { username:username } // Replace with actual query param
-  },
-  {
-    $lookup: {
-      from: "posts",
-      localField: "_id",
-      foreignField: "publisher",
-     
-      as: "postList"
-    }
-  },
-  {
-  $set: {
-    postList: {
-      $sortArray: {
-        input: "$postList",
-        sortBy: { createdAt: -1 }
-      }
-    }
-  }
-}
+    const userPosts = await User.aggregate([
+      {
+        $match: { username: username }, // Replace with actual query param
+      },
+      {
+        $lookup: {
+          from: "posts",
+          localField: "_id",
+          foreignField: "publisher",
 
-,
-   {
-  $addFields: {
-    "postList.postDetails": {
-       _id: "$postList._id",
-      post: "$postList.post",
-      title: "$postList.title"
-      
-    }
-  }
-}
-
-   ,
-  {
-    $unwind: {
-      path: "$postList",
-      preserveNullAndEmptyArrays: true,
-    }
-  },
-  {
-    $lookup: {
-      from: "likes",
-      localField: "postList._id",
-      foreignField: "post",
-      as: "likes"
-    }
-  },
-  {
-    $lookup: {
-      from: "comments",
-      let: { postId: "$postList._id" },
-      pipeline: [
-        {
-          $match: {
-            $expr: { $eq: ["$post", "$$postId"] }
-          }
+          as: "postList",
         },
-        {
-          $lookup: {
-            from: "users",
-            localField: "commenter",
-            foreignField: "_id",
-            as: "commenterDetails"
-          }
-        },
-        { $unwind: "$commenterDetails" },
-        {
-          $project: {
-            _id: 1,
-            comment: 1,
-            commenterDetails: {
-              username: "$commenterDetails.username",
-              profilePic: "$commenterDetails.profilePic"
-            }
-          }
-        }
-      ],
-      as: "comments"
-    }
-  },
-  {
-    $group: {
-      _id: "$_id",
-      username: { $first: "$username" },
-      profilePic: { $first: "$profilePic" },
-      postList: {
-        $push: {
-           postDetails: {
-              _id: "$postList._id",
-      post: "$postList.post",
-      title: "$postList.title"
-    },
-
-          likesCount: { $size: "$likes" },
-          commentsCount: { $size: "$comments" },
-          publisherDetails: {
-            username: "$username",
-            profilePic: "$profilePic"
+      },
+      {
+        $set: {
+          postList: {
+            $sortArray: {
+              input: "$postList",
+              sortBy: { createdAt: -1 },
+            },
           },
-          comments: "$comments"
-        }
-      }
-    }
-  },
-  {
-    $project: {
-      _id: 0,
-      postList: {
-        
-        $arrayToObject: {
-          $map: {
-            input: { $range: [0, { $size: "$postList" }] },
-            as: "index",
-            in: {
-              k: {
-                $concat: ["P", { $toString: "$$index" }]
+        },
+      },
+      {
+        $addFields: {
+          "postList.postDetails": {
+            _id: "$postList._id",
+            post: "$postList.post",
+            title: "$postList.title",
+          },
+        },
+      },
+      {
+        $unwind: {
+          path: "$postList",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $lookup: {
+          from: "likes",
+          localField: "postList._id",
+          foreignField: "post",
+          as: "likes",
+        },
+      },
+      {
+        $lookup: {
+          from: "comments",
+          let: { postId: "$postList._id" },
+          pipeline: [
+            {
+              $match: {
+                $expr: { $eq: ["$post", "$$postId"] },
               },
-              v: { $arrayElemAt: ["$postList", "$$index"] }
-            }
-          }
-        }
-      }
-    }
-  }
-]);
-  const postsList = userPosts[0].postList
+            },
+            {
+              $lookup: {
+                from: "users",
+                localField: "commenter",
+                foreignField: "_id",
+                as: "commenterDetails",
+              },
+            },
+            { $unwind: "$commenterDetails" },
+            {
+              $project: {
+                _id: 1,
+                comment: 1,
+                commenterDetails: {
+                  username: "$commenterDetails.username",
+                  profilePic: "$commenterDetails.profilePic",
+                },
+              },
+            },
+          ],
+          as: "comments",
+        },
+      },
+      {
+        $group: {
+          _id: "$_id",
+          username: { $first: "$username" },
+          profilePic: { $first: "$profilePic" },
+          postList: {
+            $push: {
+              postDetails: {
+                _id: "$postList._id",
+                post: "$postList.post",
+                title: "$postList.title",
+              },
 
+              likesCount: { $size: "$likes" },
+              commentsCount: { $size: "$comments" },
+              publisherDetails: {
+                username: "$username",
+                profilePic: "$profilePic",
+              },
+              comments: "$comments",
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          postList: {
+            $arrayToObject: {
+              $map: {
+                input: { $range: [0, { $size: "$postList" }] },
+                as: "index",
+                in: {
+                  k: {
+                    $concat: ["P", { $toString: "$$index" }],
+                  },
+                  v: { $arrayElemAt: ["$postList", "$$index"] },
+                },
+              },
+            },
+          },
+        },
+      },
+    ]);
+    const postsList = userPosts[0].postList;
 
     if (!userProfile?.length) {
       throw new ApiError(404, "User profile does not exist");
@@ -270,10 +262,10 @@ const getUserProfile = async (req, res) => {
       success: true,
       profileDetails: userProfile[0],
       posts: postsList,
-         requestStatus: requestStatus, 
+      requestStatus: requestStatus,
       isBlocked: isBlocked,
-      sameUser: sameUser, 
-      isPrivate:false
+      sameUser: sameUser,
+      isPrivate: false,
     });
   } catch (error) {
     return res.status(error.statusCode || 500).json({

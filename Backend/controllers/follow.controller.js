@@ -9,9 +9,9 @@ const toggleFollow = async (req, res) => {
   if (!username) {
     throw new ApiError(401, "Empty username");
   }
-  
+
   const user = await User.findOne({ username }); //user that we want to follow or unfollow
-  if (!user ||(user.blockedUsers?.includes(userX._id))) {
+  if (!user || user.blockedUsers?.includes(userX._id)) {
     throw new ApiError(404, "user not exists");
   }
   if (userX.username === user.username) {
@@ -20,58 +20,56 @@ const toggleFollow = async (req, res) => {
   const alreadyFollowing = await UserProfile.findOne({
     follower: userX._id,
     profile: user._id,
-    requestStatus:"accepted"
+    requestStatus: "accepted",
   });
-  
+
   if (follow) {
     if (alreadyFollowing) {
       throw new ApiError(400, "You are already following this user");
     }
-    if(!user.profilePrivate){
-    await UserProfile.create({
-      follower: userX._id,
-      profile: user._id,
-      requestStatus:"accepted"
-    })
-      .then(() => {
-        res.status(200).json({
-          message: "Followed successfully",
-          success: true,
-        });
+    if (!user.profilePrivate) {
+      await UserProfile.create({
+        follower: userX._id,
+        profile: user._id,
+        requestStatus: "accepted",
       })
-      .catch((err) => {
-      console.log(err);
-      
-      });}
-      else if (user.profilePrivate) {
-         await UserProfile.create({
-      follower: userX._id,
-      profile: user._id,
-      requestStatus:"pending"
-    })
-      .then(() => {
-        res.status(200).json({
-          message: "request sent successfully",
-          success: true,
+        .then(() => {
+          res.status(200).json({
+            message: "Followed successfully",
+            success: true,
+          });
+        })
+        .catch((err) => {
+          console.log(err);
         });
+    } else if (user.profilePrivate) {
+      await UserProfile.create({
+        follower: userX._id,
+        profile: user._id,
+        requestStatus: "pending",
       })
-      .catch((err) => {
-        console.log(err);
-        
-        throw new ApiError(500, "Error following user");
-      });
-      }
+        .then(() => {
+          res.status(200).json({
+            message: "request sent successfully",
+            success: true,
+          });
+        })
+        .catch((err) => {
+          console.log(err);
+
+          throw new ApiError(500, "Error following user");
+        });
+    }
   } else if (!follow) {
-try {
-   await UserProfile.findOneAndDelete({
-      follower: userX._id,
-      profile: user._id,
-      
-    });
-} catch (error) {
-  console.log(error);
-}
-   
+    try {
+      await UserProfile.findOneAndDelete({
+        follower: userX._id,
+        profile: user._id,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+
     res.status(200).json({
       message: "Unfollowed successfully",
       success: true,
@@ -81,132 +79,120 @@ try {
   }
 };
 const getFollowerFollowingList = async (req, res) => {
- 
-    const { username } = req.params;
-    const userX=req.user;
-     const targetUser =await User.findOne({username}).select( "-password -refreshToken -verificationEmailToken -isVerified -trustedDevices ")
-        if (targetUser?.blockedUsers?.includes(userX._id)) {
-           throw new ApiError(400, "user not found");
-        }
-      if (isFollowed(targetUser._id,userX._id)) {
-        const FolloweList = await User.aggregate(
-     [  {
-                $match: {
-                    username:username
-                }
-            },
+  const { username } = req.params;
+  const userX = req.user;
+  const targetUser = await User.findOne({ username }).select(
+    "-password -refreshToken -verificationEmailToken -isVerified -trustedDevices "
+  );
+  if (targetUser?.blockedUsers?.includes(userX._id)) {
+    throw new ApiError(400, "user not found");
+  }
+  if (isFollowed(targetUser._id, userX._id)) {
+    const FolloweList = await User.aggregate([
+      {
+        $match: {
+          username: username,
+        },
+      },
+      {
+        $lookup: {
+          from: "userprofiles",
+          localField: "_id",
+          foreignField: "profile",
+          as: "followerList",
+        },
+      },
+      {
+        $unwind: { path: "$followerList", preserveNullAndEmptyArrays: true },
+      },
+      {
+        $lookup: {
+          from: "users",
+          let: { followerId: "$followerList.follower" },
+          pipeline: [
+            { $match: { $expr: { $eq: ["$_id", "$$followerId"] } } },
             {
-                $lookup: {
-                    from: "userprofiles",
-                    localField: "_id",
-                    foreignField: "profile",
-                    as: "followerList"
-                }
+              $project: {
+                username: 1,
+                profilePic: 1,
+                _id: 1,
+              },
             },
-            {
-              $unwind :{path:"$followerList",preserveNullAndEmptyArrays:true}
-            },
-            {
-              $lookup:{
-                from:"users",
-                let:{followerId:"$followerList.follower"},
-               pipeline:[
-                {$match: { $expr: { $eq: ["$_id", "$$followerId"] } } },
-                {
-                  $project:{
-                    username:1,
-                    profilePic:1,
-                    _id:1
-                  }
-                }
-               ],
-               as: "followerUser"
-
-              }
-            },
-            {
-              $unwind:{
-                path:"$followerUser",
-                preserveNullAndEmptyArrays:true
-              }
-            },
-         {
+          ],
+          as: "followerUser",
+        },
+      },
+      {
+        $unwind: {
+          path: "$followerUser",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
         $group: {
           _id: "$_id",
-         
-          followerList: { $push: "$followerUser" }
-        }
+
+          followerList: { $push: "$followerUser" },
+        },
       },
-{
-        $lookup:{
-          from:"userprofiles",
-          localField:"_id",
+      {
+        $lookup: {
+          from: "userprofiles",
+          localField: "_id",
           foreignField: "follower",
-          as: "followingList"
-        }
-      },{
-        $unwind:{
-          path:"$followingList",
-          preserveNullAndEmptyArrays:true
-        }
+          as: "followingList",
+        },
+      },
+      {
+        $unwind: {
+          path: "$followingList",
+          preserveNullAndEmptyArrays: true,
+        },
       },
 
-       {
-              $lookup:{
-                from:"users",
-                let:{followingId:"$followingList.profile"},
-               pipeline:[
-                {$match: { $expr: { $eq: ["$_id", "$$followingId"] } } },
-                {
-                  $project:{
-                    username:1,
-                    profilePic:1,
-                    _id:1
-                  }
-                }
-               ],
-               as: "followingUser"
-
-              }
-            },
+      {
+        $lookup: {
+          from: "users",
+          let: { followingId: "$followingList.profile" },
+          pipeline: [
+            { $match: { $expr: { $eq: ["$_id", "$$followingId"] } } },
             {
-              $unwind:{
-                path:"$followingUser",
-                preserveNullAndEmptyArrays:true
-              }
+              $project: {
+                username: 1,
+                profilePic: 1,
+                _id: 1,
+              },
             },
-            {
+          ],
+          as: "followingUser",
+        },
+      },
+      {
+        $unwind: {
+          path: "$followingUser",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
         $group: {
           _id: "$_id",
           followerList: { $first: "$followerList" },
-          followingList: { $push: "$followingUser" }
-        }
+          followingList: { $push: "$followingUser" },
+        },
       },
       {
         $project: {
           _id: 0,
           followerList: 1,
-          followingList: 1
-        }
-      }
-
-           ]
-    );
-     if (!FolloweList.length) {
+          followingList: 1,
+        },
+      },
+    ]);
+    if (!FolloweList.length) {
       throw new ApiError(404, "User not found");
     }
 
-
-    
-    return res
-          .status(200)
-          .json(
-          FolloweList[0]
-                  )
-             
-          
-  } 
-  
-    
+    return res.status(200).json(FolloweList[0]);
+  }
 };
 export { toggleFollow, getFollowerFollowingList };

@@ -304,13 +304,11 @@ const changePasswordIn = async (req, res) => {
         "reset your password",
         "updatePass"
       );
-      
-      return res
-        .status(429)
-        .json({
-          message:
-            "Too many incorrect attempts. Please change your password through the link sent to your email.",
-        });
+
+      return res.status(429).json({
+        message:
+          "Too many incorrect attempts. Please change your password through the link sent to your email.",
+      });
     }
     user.passwordSchema.attempts += 1;
     await user.save({ validateBeforeSave: false });
@@ -403,8 +401,6 @@ const handleRequest = async (req, res) => {
   const user = req.user;
   const { doAccept } = req.body;
   const targetUser = req.params.targetUsername;
-
-  console.log("Handling request for:", targetUser);
 
   const targetuser = await User.findOne({ username: targetUser });
   if (!targetuser) {

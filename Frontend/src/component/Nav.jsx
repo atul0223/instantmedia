@@ -6,7 +6,7 @@ import { useRef } from "react";
 import axios from "axios";
 import { BACKENDURL } from "../config";
 export default function Nav() {
-  const {actualuser1, setSelectedPost } = useContext(UserContext);
+  const { actualuser1, setSelectedPost } = useContext(UserContext);
   const fileInputRef = useRef(null);
   const [data, setData] = useState([]);
   const [searching, setSearching] = useState(false);
@@ -16,28 +16,34 @@ export default function Nav() {
   const handlePickPhoto = () => {
     fileInputRef.current.click();
   };
-  const handleAccept =async(username)=>{
-     const res = await axios
-      .post(`${BACKENDURL}/user/handleRequest/${username}`,{
-    "doAccept":true
-}, {
-        withCredentials: true,
-      })
+  const handleAccept = async (username) => {
+    const res = await axios
+      .post(
+        `${BACKENDURL}/user/handleRequest/${username}`,
+        {
+          doAccept: true,
+        },
+        {
+          withCredentials: true,
+        }
+      )
       .catch((err) => console.log(err));
     console.log(res);
-
-  }
-  const handleReject =async(username)=>{
-     const res = await axios
-      .post(`${BACKENDURL}/user/handleRequest/${username}`,{
-    "doAccept":false
-}, {
-        withCredentials: true,
-      })
+  };
+  const handleReject = async (username) => {
+    const res = await axios
+      .post(
+        `${BACKENDURL}/user/handleRequest/${username}`,
+        {
+          doAccept: false,
+        },
+        {
+          withCredentials: true,
+        }
+      )
       .catch((err) => console.log(err));
     console.log(res);
-
-  }
+  };
   const handleNotifications = async () => {
     setNotificationActive(true);
     const res = await axios
@@ -58,8 +64,8 @@ export default function Nav() {
         withCredentials: true,
       })
       .catch((err) => console.log(err));
-      console.log(res);
-      
+    console.log(res);
+
     setData(res.data);
   };
   const handleFileChange = (e) => {
@@ -93,44 +99,61 @@ export default function Nav() {
           {notifications &&
             notifications.slice(0, 8).map((result) => {
               return (
-               <Link
-  to={`/profile?user=${result.requester.username}`}
-  key={result._id}
-  style={{ textDecoration: "none" }}
-  onClick={()=>{
-    setNotificationActive(false)
-  }}
-  targetuser ={result.requester.username}
->
-  <div className="flex w-82 rounded-full bg-blue-200 m-1 shadow-2xl shadow-black">
-    <img
-      src={result.requester.profilePic}
-      alt=""
-      className="w-8 h-8 rounded-full ml-4 mr-2 mt-3 mb-3"
-      onError={(e) => {
-        e.target.onerror = null;
-        e.target.src =
-          "https://res.cloudinary.com/dubvb4bha/image/upload/v1752772121/s6njjrsqysstlxneccxw.jpg";
-      }}
-    />
-    <div className="mt-1 flex items-center">
-      <h6 className=" text-black">
-        @{result.requester.username}
-      </h6>
-    </div>
-    <div className="font-serif text-black flex items-center">
-      {result.requestStatus === "accepted" ? (
-       <div className="mt-3"> <p className="ml-1">Started following you</p></div>
-      ) : (
-        <div className="ml-1">
-          <small className="mr-10">wants to follow you</small>{" "}
-          <button className="btn btn-outline-success" onClick={()=>{handleAccept(result.requester.username)}}>accept</button> {" "}
-          <button className="btn btn-outline-danger"onClick={()=>{handleReject(result.requester.username)}}>reject</button>
-        </div>
-      )}
-    </div>
-  </div>
-</Link>
+                <Link
+                  to={`/profile?user=${result.requester.username}`}
+                  key={result._id}
+                  style={{ textDecoration: "none" }}
+                  onClick={() => {
+                    setNotificationActive(false);
+                  }}
+                  targetuser={result.requester.username}
+                >
+                  <div className="flex w-82 rounded-full bg-blue-200 m-1 shadow-2xl shadow-black">
+                    <img
+                      src={result.requester.profilePic}
+                      alt=""
+                      className="w-8 h-8 rounded-full ml-4 mr-2 mt-3 mb-3"
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src =
+                          "https://res.cloudinary.com/dubvb4bha/image/upload/v1752772121/s6njjrsqysstlxneccxw.jpg";
+                      }}
+                    />
+                    <div className="mt-1 flex items-center">
+                      <h6 className=" text-black">
+                        @{result.requester.username}
+                      </h6>
+                    </div>
+                    <div className="font-serif text-black flex items-center">
+                      {result.requestStatus === "accepted" ? (
+                        <div className="mt-3">
+                          {" "}
+                          <p className="ml-1">Started following you</p>
+                        </div>
+                      ) : (
+                        <div className="ml-1">
+                          <small className="mr-10">wants to follow you</small>{" "}
+                          <button
+                            className="btn btn-outline-success"
+                            onClick={() => {
+                              handleAccept(result.requester.username);
+                            }}
+                          >
+                            accept
+                          </button>{" "}
+                          <button
+                            className="btn btn-outline-danger"
+                            onClick={() => {
+                              handleReject(result.requester.username);
+                            }}
+                          >
+                            reject
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </Link>
               );
             })}
         </div>
@@ -162,7 +185,11 @@ export default function Nav() {
           {targetSearch &&
             data.slice(0, 5).map((result) => {
               return (
-                <Link to={`/profile?user=${result.username}`} key={result._id}  style={{ textDecoration: "none" }}>
+                <Link
+                  to={`/profile?user=${result.username}`}
+                  key={result._id}
+                  style={{ textDecoration: "none" }}
+                >
                   <div
                     className="flex w-82 rounded-full bg-blue-200 m-1 shadow-2xl shadow-black"
                     onClick={() => {
@@ -180,7 +207,9 @@ export default function Nav() {
                       }}
                     />
 
-                    <p className="mt-4 text-black">@{result.username}{" "}{`(${result.fullName})`}</p>
+                    <p className="mt-4 text-black">
+                      @{result.username} {`(${result.fullName})`}
+                    </p>
                   </div>
                 </Link>
               );
@@ -225,10 +254,10 @@ export default function Nav() {
             className="text-xl text-gray-600 hover:text-black"
             onClick={handleNotifications}
           />
-        <Link to={`https://localhost:5173/profile?user=${actualuser1}`}> <FaUser
-            className="text-xl text-gray-600 hover:text-black"
-           
-          /></Link> 
+          <Link to={`https://localhost:5173/profile?user=${actualuser1}`}>
+            {" "}
+            <FaUser className="text-xl text-gray-600 hover:text-black" />
+          </Link>
         </div>
       </div>
     );

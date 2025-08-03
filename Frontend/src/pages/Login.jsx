@@ -10,65 +10,65 @@ export default function Login() {
   const passref = useRef();
   const trustref = useRef();
   const [message, setMessage] = useState("");
-   const {loggedIn,setLoggedIn,loading,setLoading} =useContext(UserContext)
-   useEffect(() => {
-     setLoading(false)
-  if (loggedIn) navigate("/home");
-}, [loggedIn]);
+  const { loggedIn, setLoggedIn, loading, setLoading } =
+    useContext(UserContext);
+  useEffect(() => {
+    setLoading(false);
+    if (loggedIn) navigate("/home");
+  }, [loggedIn]);
 
   const login = async function () {
-   setLoading(true)
+    setLoading(true);
     const username = userref.current?.value;
     const password = passref.current?.value;
     const trustDevice = trustref.current?.checked;
     const userData = { username, password, trustDevice };
-   
+
     if (!username || !password) {
       setMessage("fields required");
     }
 
-  
-   await axios
+    await axios
       .post("https://localhost:3000/user/login", userData, {
         withCredentials: true,
       })
       .then((response) => {
-         if (response.data.requiresOtp) {
-          setLoading(false)
-                 localStorage.setItem("actualuser1",username)
-      navigate("/verifyotp");
-    } else{
-        setMessage(response.data.message);
-        setLoggedIn(true)
-         setLoading(false)
-        localStorage.setItem("actualuser1",username)
-         navigate("/home")}
+        if (response.data.requiresOtp) {
+          setLoading(false);
+          localStorage.setItem("actualuser1", username);
+          navigate("/verifyotp");
+        } else {
+          setMessage(response.data.message);
+          setLoggedIn(true);
+          setLoading(false);
+          localStorage.setItem("actualuser1", username);
+          navigate("/home");
+        }
       })
       .catch((error) => {
-          localStorage.setItem("actualuser1",username)
-        setLoading(false)
+        localStorage.setItem("actualuser1", username);
+        setLoading(false);
         if (error.response) {
-         if (error.response.data.requiresOtp) {
-      navigate("/verifyotp");
-    } 
-    if (error.response.data.message==="Please verify your email") {
-      localStorage.setItem('username', `${username}`);
-      navigate("/verifyemail");
-    }
+          if (error.response.data.requiresOtp) {
+            navigate("/verifyotp");
+          }
+          if (error.response.data.message === "Please verify your email") {
+            localStorage.setItem("username", `${username}`);
+            navigate("/verifyemail");
+          }
 
           setMessage(error.response.data.message);
         } else {
-          
           setMessage("Something went wrong.");
         }
       });
 
-   setLoading(false)
+    setLoading(false);
   };
 
   return (
     <div className="h-screen w-screen flex justify-center items-center bg-blue-200">
-      <Loading/>
+      <Loading />
       <div className="flex justify-center w-full h-full sm:w-fit sm:h-fit sm:border-b-blue-600 p-25 sm:rounded-4xl bg-blue-100 ">
         <div>
           <div className="mb-6 ">

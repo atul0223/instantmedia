@@ -1,5 +1,18 @@
 import { Router } from "express";
-import { signup, login, logout, changeProfilepic, deleteProfilePic, updateUsername ,changeFullName, changePasswordIn, forgetPassword, changeEmail, toggleProfileVisiblity, handleRequest } from "../controllers/user.controller.js";
+import {
+  signup,
+  login,
+  logout,
+  changeProfilepic,
+  deleteProfilePic,
+  updateUsername,
+  changeFullName,
+  changePasswordIn,
+  forgetPassword,
+  changeEmail,
+  toggleProfileVisiblity,
+  handleRequest,
+} from "../controllers/user.controller.js";
 import upload from "../middleware/multer.middleware.js";
 import User from "../modles/user.model.js";
 import jwt from "jsonwebtoken";
@@ -36,22 +49,34 @@ router.get("/verify/:token", async (req, res) => {
     user.verificationEmailToken.token = ""; // Clear the token after use
     await user.save();
 
-    return res.status(200).json({ message: "Email verified successfully!",success: true });
+    return res
+      .status(200)
+      .json({ message: "Email verified successfully!", success: true });
   } catch (err) {
     console.error("Verification error:", err);
-    return res.status(400).json({ message: "Invalid or expired token", success: false });
+    return res
+      .status(400)
+      .json({ message: "Invalid or expired token", success: false });
   }
 });
 router.route("/login").post(login);
-router.route("/logout").get(verifyUser,logout);
+router.route("/logout").get(verifyUser, logout);
 router.route("/verifyotp").post(verifyOtp);
-router.route("/changeProfilePic").post(verifyUser,upload.fields([{
-  name: "newProfilePic",
+router.route("/changeProfilePic").post(
+  verifyUser,
+  upload.fields([
+    {
+      name: "newProfilePic",
       maxCount: 1,
-}]),changeProfilepic)
+    },
+  ]),
+  changeProfilepic
+);
 router.route("/getUser").get(verifyUser, async (req, res) => {
   try {
-    const user = await User.findById(req.user._id).select("-password -refreshToken");
+    const user = await User.findById(req.user._id).select(
+      "-password -refreshToken"
+    );
     if (!user) return res.status(404).json({ message: "User not found" });
     return res.status(200).json(user);
   } catch (error) {
@@ -65,9 +90,11 @@ router.route("/changeFullName").post(verifyUser, changeFullName);
 router.route("/changePasswordIn").post(verifyUser, changePasswordIn);
 router.route("/forgetPassword").post(forgetPassword);
 
-router.route("/changeEmail").post(verifyUser,changeEmail)
-router.route("/toggleProfileVisiblity").post(verifyUser,toggleProfileVisiblity)
-router.route("/handleRequest/:targetUsername").post(verifyUser,handleRequest)
+router.route("/changeEmail").post(verifyUser, changeEmail);
+router
+  .route("/toggleProfileVisiblity")
+  .post(verifyUser, toggleProfileVisiblity);
+router.route("/handleRequest/:targetUsername").post(verifyUser, handleRequest);
 router.route("/isemailVerified/:username").get(async (req, res) => {
   try {
     const { username } = req.params;
@@ -81,15 +108,15 @@ router.route("/isemailVerified/:username").get(async (req, res) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 });
-router.route("/jwtverify/:token").get( async (req, res) => {
+router.route("/jwtverify/:token").get(async (req, res) => {
   try {
     const { token } = req.params;
-    
+
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     if (!decoded || !decoded.id) {
       return res.status(401).json({ valid: false });
     }
-   const user = await User.findById(decoded.id);
+    const user = await User.findById(decoded.id);
     if (!user) {
       return res.status(404).json({ valid: false });
     }
@@ -100,22 +127,21 @@ router.route("/jwtverify/:token").get( async (req, res) => {
       return res.status(400).json({ valid: false });
     }
 
-   const tokenz = generateJWT(user, "15m");
-   
-   return res.status(200)
-   .json({ valid: true, token: tokenz }
+    const tokenz = generateJWT(user, "15m");
 
-   );
+    return res.status(200).json({ valid: true, token: tokenz });
   } catch (error) {
     console.error("Error verifying JWT:", error);
     return res.status(401).json({ valid: false });
   }
 });
 router.route("/changePass/:token").post(async (req, res) => {
-  const {  newPassword } = req.body;
-  const {token} =req.params
+  const { newPassword } = req.body;
+  const { token } = req.params;
   if (!token || !newPassword) {
-    return res.status(400).json({ message: "Token and new password are required" });
+    return res
+      .status(400)
+      .json({ message: "Token and new password are required" });
   }
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -132,5 +158,5 @@ router.route("/changePass/:token").post(async (req, res) => {
     console.error("Error changing password:", error);
     return res.status(500).json({ message: "Internal server error" });
   }
-})
+});
 export default router;

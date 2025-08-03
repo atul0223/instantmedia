@@ -47,6 +47,7 @@ export default function Otp() {
               className="form-control"
               id="floatingOtp"
               placeholder="Otp"
+              autoFocus
             />
             <label htmlFor="floatingOtp">Otp</label>
           </div>

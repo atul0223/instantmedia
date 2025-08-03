@@ -1,5 +1,5 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import './App.css'
+import "./App.css";
 import Login from "./pages/Login.jsx";
 import Signup from "./pages/Signup.jsx";
 import Otp from "./pages/Otp.jsx";
@@ -11,30 +11,24 @@ import UserContextProvider from "./context/UserContextProvider.jsx";
 import HomePage from "./pages/HomePage.jsx";
 import AddPost from "./pages/AddPost.jsx";
 
-
-
-
 function App() {
-
   return (
- <UserContextProvider>
-   <BrowserRouter>
-   <Routes>
-   <Route path="/" element={<Login />}></Route>
-    <Route path="/Signup" element={<Signup/>}></Route>
-   <Route path="/verifyotp" element={<Otp/>}></Route>
-   <Route path="/verifyemail" element={<Emailverification/>}></Route>
-   <Route path="/ForgotPassword" element={<ForgetPass/>}></Route>
-  <Route path="/changePass" element={<ChangePass/>}></Route>
- <Route path="/profile" element={<Profile/>}></Route>
- <Route path="/home" element={<HomePage/>}></Route>
-<Route path="/upload" element={<AddPost/>}></Route>
-
-    </Routes>
-   </BrowserRouter>
-  
-  </UserContextProvider>
-  )
+    <UserContextProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Login />}></Route>
+          <Route path="/Signup" element={<Signup />}></Route>
+          <Route path="/verifyotp" element={<Otp />}></Route>
+          <Route path="/verifyemail" element={<Emailverification />}></Route>
+          <Route path="/ForgotPassword" element={<ForgetPass />}></Route>
+          <Route path="/changePass" element={<ChangePass />}></Route>
+          <Route path="/profile" element={<Profile />}></Route>
+          <Route path="/home" element={<HomePage />}></Route>
+          <Route path="/upload" element={<AddPost />}></Route>
+        </Routes>
+      </BrowserRouter>
+    </UserContextProvider>
+  );
 }
 
-export default App
+export default App;

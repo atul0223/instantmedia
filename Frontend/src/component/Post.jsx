@@ -1,9 +1,10 @@
 import axios from "axios";
-import { useContext, useState, useEffect } from "react";
+import { useContext, useState, useEffect, use } from "react";
 import UserContext from "../context/UserContext";
 import { BACKENDURL } from "../config";
-import {  useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Loading from "./Loading";
+
 export function PostsPrivate() {
   return (
     <div className="flex justify-center mt-7 h-52">
@@ -24,13 +25,13 @@ export function Post(props) {
   const key = props.postKey;
   const postItem = props.postItem;
   const sameUser = props.sameUser;
-  const [likesCount, setLikesCount] = useState(0);
+  const [newComment, setNewComment] = useState("");
+  const [comments, setComments] = useState([]);
   const navigate = useNavigate();
-  const { singlePostopen, setsinglePostOpen ,actualuser1} = useContext(UserContext);
+  const { singlePostopen, setsinglePostOpen, actualuser1 } =
+    useContext(UserContext);
   const [isLiked, setIsLiked] = useState(false);
-  const [commentsCount, setCommentsCount] = useState(0);
-  const [comments,setComments]=useState([])
-  const[newComment,setNewComment]=useState("")
+
   const fetchIsLiked = async (postId) => {
     const { data } = await axios.get(
       `${BACKENDURL}/profile/isLiked/${postId}`,
@@ -43,42 +44,35 @@ export function Post(props) {
   const { fetchUser, targetuser, setLoading } = useContext(UserContext);
   const [activePost, setActivePost] = useState(null);
   const [likeLoading, setLikeLoading] = useState(false);
-const handleAddComment =async(postId)=>{
-       try {
+  const handleAddComment = async (postId) => {
+    try {
       setLikeLoading(true);
       const res = await axios.post(
         `${BACKENDURL}/profile/${postId}/addComment`,
         {
-          inputComment:newComment
+          inputComment: newComment,
         },
         { withCredentials: true }
       );
-
-      
-     
+      setNewComment("");
+      fetchPostDetails(postId);
     } catch (err) {
       console.error("Toggle like failed:", err);
     }
-   
-    
+
     setLikeLoading(false);
-}
-const handleDeleteComment =async (cId) => {
-   try {
+  };
+  const handleDeleteComment = async (cId, postId) => {
+    try {
+      await axios.delete(`${BACKENDURL}/profile/deleteComment/${cId}`, {
+        withCredentials: true,
+      });
 
-      const res = await axios.delete(
-        `${BACKENDURL}/profile/deleteComment/${cId}`
-       ,
-        { withCredentials: true }
-      );
-
-
-      
+      fetchPostDetails(postId);
     } catch (err) {
       console.error("Toggle like failed:", err);
     }
-
-}
+  };
   const handleTogleLike = async (postId) => {
     try {
       setLikeLoading(true);
@@ -90,22 +84,36 @@ const handleDeleteComment =async (cId) => {
         { withCredentials: true }
       );
 
-      setIsLiked(!isLiked);
-      isLiked
-        ? setLikesCount((prev) => prev - 1)
-        : setLikesCount((prev) => prev + 1);
+      fetchPostDetails(postId);
     } catch (err) {
       console.error("Toggle like failed:", err);
     }
     setLikeLoading(false);
   };
-  const handleOpenModal = (item) => {
-    fetchIsLiked(item.postDetails._id);
-    setActivePost(item);
-    setComments(item.comments)
-    setCommentsCount(item.commentsCount);
-    setLikesCount(item.likesCount);
-    setsinglePostOpen(true);
+  const fetchPostDetails = async (postId) => {
+    try {
+      const res = await axios.get(
+        `${BACKENDURL}/profile/getSinglePost/${postId}`,
+        {
+          withCredentials: true,
+        }
+      );
+      setActivePost(res.data.post);
+      setComments(res.data.post.comments);
+      await fetchIsLiked(postId);
+    } catch (error) {
+      console.error("Fetch post details failed:", error);
+    }
+  };
+  const handleOpenModal = async (postId) => {
+    try {
+      setsinglePostOpen(true);
+      setLoading(true);
+      await fetchPostDetails(postId);
+    } catch (error) {
+      console.error("Delete post failed:", error);
+    }
+    setLoading(false);
   };
 
   const handleDeletePosts = async (postId) => {
@@ -131,8 +139,6 @@ const handleDeleteComment =async (cId) => {
   if (singlePostopen && activePost) {
     return (
       <div className="fixed inset-0 z-50 bg-blue-50 flex items-baseline justify-center p-2 ">
-        
-
         <div className="fixed top-4 right-4 flex justify-center items-center bg-zinc-100 z-50 rounded-full w-12 h-12  shadow-2xl shadow-black">
           <img
             src="close.png"
@@ -163,16 +169,12 @@ const handleDeleteComment =async (cId) => {
               </small>
             </div>
             <div className="max-w-full mt-6 min-h-3/4 pl-7 pr-7 pb-2 justify-center flex row-span-10">
-              <img
-                src={activePost.postDetails.post}
-                alt=""
-                className="rounded-4xl"
-              />
+              <img src={activePost.post} alt="" className="rounded-4xl" />
             </div>
             <div className="max-w-full row-span-1 flex gap-10 p-2 justify-center border-t-1 border-t-gray-200">
               <div
                 className="h-6 w-6 hover:w-7 flex gap-2 "
-                onClick={() => handleTogleLike(activePost.postDetails._id)}
+                onClick={() => handleTogleLike(activePost._id)}
                 style={likeLoading ? { pointerEvents: "none" } : {}}
               >
                 {isLiked ? (
@@ -184,7 +186,7 @@ const handleDeleteComment =async (cId) => {
                 ) : (
                   <img src="heart.png" alt="" className="hover:w-7 hover:h-7" />
                 )}
-                <small>{likesCount}</small>
+                <small>{activePost.likesCount}</small>
               </div>
               <div className="h-6 w-6 hover:w-7 flex gap-2">
                 <img src="comment.png" alt="" className="hover:w-7 hover:h-7" />
@@ -202,40 +204,68 @@ const handleDeleteComment =async (cId) => {
                 className="h-12 w-full rounded-3xl border-2 p-3 "
                 placeholder="Add comment"
                 value={newComment}
-                onChange={(e)=>{setNewComment(e.target.value)}}
+                onChange={(e) => {
+                  setNewComment(e.target.value);
+                }}
                 autoFocus
               />
-              <button className="btn btn-primary"onClick={()=>handleAddComment(activePost.postDetails._id)}>Post</button>
+              <button
+                className="btn btn-primary"
+                onClick={() => handleAddComment(activePost._id)}
+              >
+                Post
+              </button>
             </div>
-           <div className="w-full">
-  {comments.length === 0 ? (
-    <div className="w-full flex justify-center items-center">
-      <p className="text-gray-600 text-lg">No comments</p>
-    </div>
-  ) : (
-    <div className="space-y-1 w-full">
-      {comments.map((item, index) => (
-        <div
-          key={index}
-          className="flex flex-col w-full border rounded-2xl bg-gray-50 p-3"
-        >
-          <div className="flex items-center gap-2 mb-2">
-            <img
-              src={item.commenterDetails.profilePic}
-              alt={`${item.commenterDetails.username}'s profile`}
-              className="w-8 h-8 rounded-full object-cover"
-            />
-            <div className="font-bold text-sm text-gray-800 pt-2 flex">@{item.commenterDetails.username}{item.commenterDetails.username===activePost.publisherDetails.username?<p className="ml-1">{"  (publisher)"}</p>:<></>} </div>
-           {(item.commenterDetails.username===actualuser1 )? <div className="w-full flex justify-end"><img src="delete.png" alt="" className="w-5 h-5 hover:w-6 hover:h-6" onClick={()=>{handleDeleteComment(item._id)}}/></div>:<></>}
-          </div>
-          <p className="text-sm text-gray-700 break-words whitespace-normal">
-            {item.comment}
-          </p>
-        </div>
-      ))}
-    </div>
-  )}
-</div>
+            <div className="w-full">
+              {activePost.comments.length === 0 ? (
+                <div className="w-full flex justify-center items-center">
+                  <p className="text-gray-600 text-lg">No comments</p>
+                </div>
+              ) : (
+                <div className="space-y-1 w-full">
+                  {comments.map((item, index) => (
+                    <div
+                      key={index}
+                      className="flex flex-col w-full border rounded-2xl bg-gray-50 p-3"
+                    >
+                      <div className="flex items-center gap-2 mb-2">
+                        <img
+                          src={item.commenterDetails.profilePic}
+                          alt={`${item.commenterDetails.username}'s profile`}
+                          className="w-8 h-8 rounded-full object-cover"
+                        />
+                        <div className="font-bold text-sm text-gray-800 pt-2 flex">
+                          @{item.commenterDetails.username}
+                          {item.commenterDetails.username ===
+                          activePost.publisherDetails.username ? (
+                            <p className="ml-1">{"  (publisher)"}</p>
+                          ) : (
+                            <></>
+                          )}{" "}
+                        </div>
+                        {item.commenterDetails.username === actualuser1 ? (
+                          <div className="w-full flex justify-end">
+                            <img
+                              src="delete.png"
+                              alt=""
+                              className="w-5 h-5 hover:w-6 hover:h-6"
+                              onClick={() => {
+                                handleDeleteComment(item._id, activePost._id);
+                              }}
+                            />
+                          </div>
+                        ) : (
+                          <></>
+                        )}
+                      </div>
+                      <p className="text-sm text-gray-700 break-words whitespace-normal">
+                        {item.comment}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -250,7 +280,7 @@ const handleDeleteComment =async (cId) => {
         >
           <div
             onClick={(e) => {
-              handleOpenModal(postItem);
+              handleOpenModal(postItem.postDetails._id);
             }}
           >
             <img

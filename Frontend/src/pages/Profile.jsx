@@ -8,8 +8,14 @@ import { useNavigate } from "react-router-dom";
 import Loading from "../component/Loading";
 
 export default function Profile() {
-  const { targetuser, fetchUser, loggedIn, setLoading ,loading,singlePostopen} =
-    useContext(UserContext);
+  const {
+    targetuser,
+    fetchUser,
+    loggedIn,
+    setLoading,
+    loading,
+    singlePostopen,
+  } = useContext(UserContext);
   const navigate = useNavigate();
   const user = new URLSearchParams(window.location.search).get("user");
   const [btnType, setbtnType] = useState("btn btn-primary");
@@ -84,19 +90,22 @@ export default function Profile() {
   }, [user]);
   if (settingsActive) {
     return (
-     <div className="fixed inset-0 z-50 bg-zinc-400 sm:pl-30 sm:pr-30 flex justify-center">
+      <div className="fixed inset-0 z-50 bg-zinc-400 sm:pl-30 sm:pr-30 flex justify-center">
         <div className="w-full h-ful">
-            <div className="w-full flex justify-center mt-3"><h2>Settings</h2></div>
-       
-         <div className="fixed top-4  right-4"><img
+          <div className="w-full flex justify-center mt-3">
+            <h2>Settings</h2>
+          </div>
+
+          <div className="fixed top-4  right-4">
+            <img
               src="close.png"
               alt=""
               className="w-6 h-6 ml-5 mb-1 hover:h-5 hover:w-5"
               onClick={() => setSettingsActive(false)}
-            /></div>
-            
+            />
+          </div>
         </div>
-        </div>
+      </div>
     );
   } else {
     return (
@@ -206,7 +215,7 @@ export default function Profile() {
             )}
           </div>
         </div>
-       {loading ||singlePostopen ?<></>:<Nav/>}
+        {loading || singlePostopen ? <></> : <Nav />}
       </div>
     );
   }

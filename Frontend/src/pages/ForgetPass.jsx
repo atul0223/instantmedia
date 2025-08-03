@@ -1,48 +1,49 @@
-import axios from "axios"
-import { useContext, useRef } from "react"
-import { BACKENDURL } from "../config"
-import { useState } from "react"
-import { Link ,useNavigate} from "react-router-dom"
-import UserContext from "../context/UserContext"
-import Loading from "../component/Loading"
+import axios from "axios";
+import { useContext, useRef } from "react";
+import { BACKENDURL } from "../config";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import UserContext from "../context/UserContext";
+import Loading from "../component/Loading";
 
 export default function ForgetPass() {
   const navigate = useNavigate();
-  const { loading,setLoading} =useContext(UserContext)
-    const [message, setMessage] = useState("");
-    const emailref =useRef()
-    const forget =async ()=>{
-      setLoading(true)
-        const email=emailref.current?.value
-        const userData ={
-            email
+  const { loading, setLoading } = useContext(UserContext);
+  const [message, setMessage] = useState("");
+  const emailref = useRef();
+  const forget = async () => {
+    setLoading(true);
+    const email = emailref.current?.value;
+    const userData = {
+      email,
+    };
+    const res = await axios
+      .post(`${BACKENDURL}/user/forgetPassword`, userData, {
+        withCredentials: true,
+      })
+      .then((response) => {
+        setMessage(response.data.message);
+        setTimeout(() => {
+          navigate("/");
+        }, 2000);
+      })
+      .catch((error) => {
+        if (error.response) {
+          setMessage(error.response.data.message);
+        } else if (error.request) {
+          setMessage("No response from server. Please try again later.");
+        } else {
+          setMessage("Error: " + error.message);
         }
-       const res = await axios.post(`${BACKENDURL}/user/forgetPassword`,userData,{withCredentials:true}).then((response)=>{
-            setMessage(response.data.message);
-            setTimeout(() => {
-               navigate("/")
-            }, 2000);
-        }).catch((error)=>{
-            if (error.response) {
-                
-                setMessage(error.response.data.message);
-            } else if (error.request) {
-                
-                setMessage("No response from server. Please try again later.");
-            } else {
-                
-                setMessage("Error: " + error.message);
-            }
-        })
-      
-        setLoading(false)
-        
-    }
+      });
+
+    setLoading(false);
+  };
   return (
-       <div className='h-screen w-screen flex justify-center items-center bg-blue-200 '>
-        <Loading/>
-      <div className='flex justify-center w-full h-full sm:w-fit sm:h-fit sm:border-b-blue-600 p-25 sm:pt-12 sm:pb-12 sm:rounded-4xl bg-blue-100 '>
-       <div>
+    <div className="h-screen w-screen flex justify-center items-center bg-blue-200 ">
+      <Loading />
+      <div className="flex justify-center w-full h-full sm:w-fit sm:h-fit sm:border-b-blue-600 p-25 sm:pt-12 sm:pb-12 sm:rounded-4xl bg-blue-100 ">
+        <div>
           <div className="mb-6 ">
             <h3>Forgot Password ?</h3>
           </div>
@@ -62,7 +63,7 @@ export default function ForgetPass() {
             {message && <p className="text-red-800 text-sm m-0">{message}</p>}
           </div>
 
-           <div className="d-grid gap-2 mb-4">
+          <div className="d-grid gap-2 mb-4">
             <button className="btn btn-primary" type="button " onClick={forget}>
               Submit
             </button>
@@ -77,9 +78,8 @@ export default function ForgetPass() {
               Don't have a account? <Link to={"/Signup"}>Signup</Link>
             </p>
           </div>
-      
-       </div>
+        </div>
+      </div>
     </div>
-    </div>
-  )
+  );
 }
