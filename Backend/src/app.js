@@ -15,5 +15,9 @@ app.use(express.static("public"));
 app.use("/user",userRouter)
 app.use("/profile",profileRouter)
 app.use("/home",homeRouter)
+app.use((req, res, next) => {
+  console.log(`Unhandled request: ${req.method} ${req.originalUrl}`);
+  res.status(404).send("Route not found");
+});
 
 export default app

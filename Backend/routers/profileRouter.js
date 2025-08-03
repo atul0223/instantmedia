@@ -6,7 +6,7 @@ const router = Router();
 import { getUserProfile } from "../controllers/userProfile.controller.js";
 import { newPosts ,deletePost} from "../controllers/posts.controller.js";
 import {toggleLike } from "../controllers/likes.controller.js";
-import { addComment, deleteComments, getComments } from "../controllers/comments.controller.js";
+import { addComment, deleteComments } from "../controllers/comments.controller.js";
 import { toggleBlock } from "../controllers/blocked.controller.js";
 
 import Like from "../modles/likes.model.js";
@@ -29,8 +29,8 @@ router.route("/isLiked/:postId").get(verifyUser, async (req, res) => {
   res.status(200).json({ isLiked: likedPost ? true : false });
 });
 router.route("/:postId/addComment").post(verifyUser,addComment);
-router.route("/:postId/getComment").get(verifyUser,getComments);
-router.route("/:postId/deleteComment/:commentId").delete(verifyUser,deleteComments)
+
+router.route("/deleteComment/:commentId").delete(verifyUser,deleteComments)
 
 router.route("/:username/toggleBlock").post(verifyUser, toggleBlock);
 export default router;

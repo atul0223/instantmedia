@@ -202,7 +202,7 @@ const getUserProfile = async (req, res) => {
         { $unwind: "$commenterDetails" },
         {
           $project: {
-            _id: 0,
+            _id: 1,
             comment: 1,
             commenterDetails: {
               username: "$commenterDetails.username",

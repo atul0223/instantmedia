@@ -26,7 +26,7 @@ export function Post(props) {
   const sameUser = props.sameUser;
   const [likesCount, setLikesCount] = useState(0);
   const navigate = useNavigate();
-  const { singlePostopen, setsinglePostOpen } = useContext(UserContext);
+  const { singlePostopen, setsinglePostOpen ,actualuser1} = useContext(UserContext);
   const [isLiked, setIsLiked] = useState(false);
   const [commentsCount, setCommentsCount] = useState(0);
   const [comments,setComments]=useState([])
@@ -55,13 +55,29 @@ const handleAddComment =async(postId)=>{
       );
 
       
-      console.log(res);
+     
     } catch (err) {
       console.error("Toggle like failed:", err);
     }
    
     
     setLikeLoading(false);
+}
+const handleDeleteComment =async (cId) => {
+   try {
+
+      const res = await axios.delete(
+        `${BACKENDURL}/profile/deleteComment/${cId}`
+       ,
+        { withCredentials: true }
+      );
+
+
+      
+    } catch (err) {
+      console.error("Toggle like failed:", err);
+    }
+
 }
   const handleTogleLike = async (postId) => {
     try {
@@ -114,8 +130,8 @@ const handleAddComment =async(postId)=>{
 
   if (singlePostopen && activePost) {
     return (
-      <div className="fixed inset-0 z-50 bg-blue-50  flex items-baseline justify-center p-2 ">
-        {console.log(activePost)}
+      <div className="fixed inset-0 z-50 bg-blue-50 flex items-baseline justify-center p-2 ">
+        
 
         <div className="fixed top-4 right-4 flex justify-center items-center bg-zinc-100 z-50 rounded-full w-12 h-12  shadow-2xl shadow-black">
           <img
@@ -125,7 +141,7 @@ const handleAddComment =async(postId)=>{
             onClick={() => setsinglePostOpen(false)}
           />
         </div>
-        <div className="w-full h-full border-2 border-zinc-200 rounded-3xl shadow-2xl shadow-black sm:flex justify-center gap-5 md:gap-0">
+        <div className="w-full h-full border-2 border-zinc-200 rounded-3xl shadow-2xl shadow-black sm:flex justify-center gap-5 md:gap-0 overflow-y-scroll sm:overflow-y-visible">
           <div className=" rounded-4xl w-full md:h-3/4 h-2/3 border-2 md:ml-20 md:mr-10 lg:ml-30 lg-mr-10 sm:ml-10 sm:mt-10 xl:ml-40 xl-mr-10 border-gray-300 mb-3 grid grid-rows-12 shadow-2xl shadow-blue-100">
             <div
               className=" h-10 rounded-full m-3 flex gap-2 row-span-1"
@@ -191,15 +207,35 @@ const handleAddComment =async(postId)=>{
               />
               <button className="btn btn-primary"onClick={()=>handleAddComment(activePost.postDetails._id)}>Post</button>
             </div>
-            <div>
-              {comments.length===0?<div className="w-full h-full flex justify-center items-center"> <h4>no comments </h4></div>:<div className="w-full h-full " >{comments.map((item)=>{
-                return(
-                <div className="flex w-full h-15 border-1 rounded-2xl bg-gray-50">
-                  <div className="w-8 h-8 rounded-full ml-3 mt-3"><img src={item.commenterDetails.profilePic} alt="" className="w-7 h-7 rounded-full"/></div>
-                  <div className=" flex h-full gap-3"><p className="mt-3 font-bold">@{item.commenterDetails.username}</p> <p className="mt-3">{item.comment}</p></div>
-                </div>)
-              })}
-            </div>}</div>
+           <div className="w-full">
+  {comments.length === 0 ? (
+    <div className="w-full flex justify-center items-center">
+      <p className="text-gray-600 text-lg">No comments</p>
+    </div>
+  ) : (
+    <div className="space-y-1 w-full">
+      {comments.map((item, index) => (
+        <div
+          key={index}
+          className="flex flex-col w-full border rounded-2xl bg-gray-50 p-3"
+        >
+          <div className="flex items-center gap-2 mb-2">
+            <img
+              src={item.commenterDetails.profilePic}
+              alt={`${item.commenterDetails.username}'s profile`}
+              className="w-8 h-8 rounded-full object-cover"
+            />
+            <div className="font-bold text-sm text-gray-800 pt-2 flex">@{item.commenterDetails.username}{item.commenterDetails.username===activePost.publisherDetails.username?<p className="ml-1">{"  (publisher)"}</p>:<></>} </div>
+           {(item.commenterDetails.username===actualuser1 )? <div className="w-full flex justify-end"><img src="delete.png" alt="" className="w-5 h-5 hover:w-6 hover:h-6" onClick={()=>{handleDeleteComment(item._id)}}/></div>:<></>}
+          </div>
+          <p className="text-sm text-gray-700 break-words whitespace-normal">
+            {item.comment}
+          </p>
+        </div>
+      ))}
+    </div>
+  )}
+</div>
           </div>
         </div>
       </div>

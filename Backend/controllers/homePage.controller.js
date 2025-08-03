@@ -110,7 +110,7 @@ const homePage = async (req, res) => {
         { $unwind: "$commenterDetails" },
         {
           $project: {
-            _id: 0,
+            _id: 1,
             comment: 1,
             commenterDetails: {
               username: "$commenterDetails.username",
@@ -218,7 +218,7 @@ const homePage = async (req, res) => {
     preserveNullAndEmptyArrays: true} },
         {
           $project: {
-            _id: 0,
+            _id: 1,
             comment: 1,
             commenterDetails: {
               username: "$commenterDetails.username",

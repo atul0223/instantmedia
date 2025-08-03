@@ -1,8 +1,9 @@
 import ApiError from "../utils/ApiError.js";
 import Post from "../modles/posts.model.js";
 import Comment from "../modles/comments.model.js";
-import mongoose from "mongoose";
+
 import User from "../modles/user.model.js";
+import mongoose from "mongoose";
 const addComment = async (req, res) => {
   const { inputComment } = req.body;
   const { postId } = req.params;
@@ -36,37 +37,11 @@ const addComment = async (req, res) => {
     comment: createComment.comment,
   });
 };
-const getComments = async (req, res) => {
-  const { postId } = req.params;
-  if (!postId) {
-    throw new ApiError(404, "post not found");
-  }
-  const getPost = await Post.findById(postId);
-  if (!getPost) throw new ApiError(404, "post not found");
-  const commentsList = await Post.aggregate([
-    { $match: { _id:new mongoose.Types.ObjectId(postId) } },
-    {
-      $lookup: {
-        from: "comments",
-        localField: "_id",
-        foreignField: "post",
-        as: "CommentsList",
-      },
-    },
-  ]);
- if( commentsList.length === 0) {
-    return res.status(200).json({
-      message: "No comments found",
-      comments: [],
-    });
-  }
-  return res.status(200).json({
-    message: "successfully fetched comments",
-    comments: commentsList[0].CommentsList,
-  });
-};
+
 const deleteComments = async (req, res) => {
-  const { commentId } = req.params;
+const commentId = req.params.commentId;
+console.log(commentId);
+
   const user = req.user;
 
   if (!commentId) {
@@ -78,7 +53,7 @@ const deleteComments = async (req, res) => {
     throw new ApiError(404, "Comment not found");
   }
 
-  if (comment.commenter.toString() !== user._id.toString()) {
+  if (comment.commenter.toString() !== user._id.toString() ) {
     throw new ApiError(403, "You are not authorized to delete this comment");
   }
 
@@ -88,4 +63,4 @@ const deleteComments = async (req, res) => {
     message: "Comment deleted successfully",
   });
 }
-export { addComment, getComments , deleteComments };
+export { addComment,  deleteComments };

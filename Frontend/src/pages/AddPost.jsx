@@ -82,7 +82,7 @@ if (selectedPost) {
                   ></textarea>
                 </div>
               </div>
-              <div className="flex justify-center border-2 rounded-3xl w-40 hover:w-41" >
+              <div className="flex justify-center border-2 rounded-3xl w-40 hover:w-41 hover:cursor-pointer" >
                 <h4 className="mt-1 -z-0"  onClick={handleUpload}>Upload </h4>
                 <img
                   src="upload.png"
