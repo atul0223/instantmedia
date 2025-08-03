@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 import Loading from "../component/Loading";
 
 export default function Profile() {
-  const { targetuser, fetchUser, loggedIn, setLoading } =
+  const { targetuser, fetchUser, loggedIn, setLoading ,loading,singlePostopen} =
     useContext(UserContext);
   const navigate = useNavigate();
   const user = new URLSearchParams(window.location.search).get("user");
@@ -206,7 +206,7 @@ export default function Profile() {
             )}
           </div>
         </div>
-        <Nav />
+       {loading ||singlePostopen ?<></>:<Nav/>}
       </div>
     );
   }

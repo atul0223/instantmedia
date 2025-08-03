@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useState, useEffect,useRef } from "react";
 import UserContext from "../context/UserContext";
 import axios from "axios";
 import { BACKENDURL } from "../config";
@@ -6,6 +6,8 @@ import { useNavigate } from "react-router-dom";
 import Loading from "../component/Loading";
 export default function AddPost() {
   const [preview, setPreview] = useState(null);
+  const postRef = useRef(null);
+
   const { selectedPost ,actualuser1,loading,setLoading} = useContext(UserContext);
 const navigate =useNavigate()
   const [title, setTitle] = useState("");
@@ -67,10 +69,10 @@ if (selectedPost) {
                 />
               </div>
               <div className="mb-4">
-                <div class="form-group">
-                  <label for="title">Title</label>
+                <div className="form-group">
+                  <label htmlFor="title">Title</label>
                   <textarea
-                    class="form-control"
+                    className="form-control"
                     id="title"
                     rows="3"
                     value={title}

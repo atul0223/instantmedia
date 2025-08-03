@@ -6,7 +6,8 @@ export default function UserContextProvider({ children }) {
   const actualuser1 = localStorage.getItem("actualuser1");
   const [loggedIn, setLoggedIn] = useState(true);
   const [selectedPost, setSelectedPost] = useState();
-  const [loading,setLoading] =useState(false)
+  const [singlePostopen, setsinglePostOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [targetuser, setTargetUser] = useState({
     isPrivate: false,
     posts: {},
@@ -67,7 +68,10 @@ export default function UserContextProvider({ children }) {
         targetuser,
         setTargetUser,
         setSelectedPost,
-        loading,setLoading
+        loading,
+        setLoading,
+        singlePostopen,
+        setsinglePostOpen,
       }}
     >
       {children}
