@@ -68,14 +68,14 @@ export default function Nav() {
 
     setData(res.data);
   };
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      console.log("Picked file:", file.name);
-      setSelectedPost(file);
-      navigate("/upload");
-    }
-  };
+    const handleFileChange = (e) => {
+      const file = e.target.files[0];
+      if (file) {
+    
+        setSelectedPost(file);
+        navigate("/upload");
+      }
+    };
   const openSearch = async () => {
     setSearching(true);
   };

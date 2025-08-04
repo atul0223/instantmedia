@@ -75,7 +75,7 @@ router.route("/changeProfilePic").post(
 router.route("/getUser").get(verifyUser, async (req, res) => {
   try {
     const user = await User.findById(req.user._id).select(
-      "-password -refreshToken"
+      "username profilePic fullName email profilePrivate"
     );
     if (!user) return res.status(404).json({ message: "User not found" });
     return res.status(200).json(user);
@@ -159,4 +159,20 @@ router.route("/changePass/:token").post(async (req, res) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 });
+router.route("/isUsernameAvailable/:username").get(async (req, res) => {
+  const { username } = req.params;
+  try {
+    const user = await User.findOne({ username });
+    if (user) {
+      return res.status(200).json({ available: false,
+        message: "Username is already taken" });
+    }
+    return res.status(200).json({ available: true ,
+      message: "Username is available"});
+  } catch (error) {
+    console.error("Error checking username availability:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 export default router;

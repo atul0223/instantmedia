@@ -8,6 +8,7 @@ export default function UserContextProvider({ children }) {
   const [selectedPost, setSelectedPost] = useState();
   const [singlePostopen, setsinglePostOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [currentUserDetails,setCurrentUserDetails]=useState({})
   const [targetuser, setTargetUser] = useState({
     isPrivate: false,
     posts: {},
@@ -23,8 +24,22 @@ export default function UserContextProvider({ children }) {
     sameUser: false,
     isblocked: false,
   });
-
-  const fetchUser = async (username) => {
+const fetchCurrentUser =async()=>{
+     try {
+      const response = await axios.get(`${BACKENDURL}/user/getUser`, {
+        withCredentials: true,
+      });
+      setCurrentUserDetails(response.data)
+      console.log(response.data);
+      
+      
+        return response.data;
+      
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
+  };
+const fetchUser = async (username) => {
     try {
       const response = await axios.get(`${BACKENDURL}/profile/${username}`, {
         withCredentials: true,
@@ -72,6 +87,8 @@ export default function UserContextProvider({ children }) {
         setLoading,
         singlePostopen,
         setsinglePostOpen,
+        fetchCurrentUser,
+        currentUserDetails
       }}
     >
       {children}

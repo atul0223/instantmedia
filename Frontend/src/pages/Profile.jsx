@@ -20,7 +20,7 @@ export default function Profile() {
   const user = new URLSearchParams(window.location.search).get("user");
   const [btnType, setbtnType] = useState("btn btn-primary");
   const [choice, setChoice] = useState(false);
-  const [settingsActive, setSettingsActive] = useState(false);
+
   const [isLoading, setIsLoading] = useState(false);
   const [canSee, setCansee] = useState(true);
   const fetchuser = async () => {
@@ -84,30 +84,14 @@ export default function Profile() {
       setIsLoading(false);
     }
   };
+  
+
 
   useEffect(() => {
     fetchuser();
+  
   }, [user]);
-  if (settingsActive) {
-    return (
-      <div className="fixed inset-0 z-50 bg-zinc-400 sm:pl-30 sm:pr-30 flex justify-center">
-        <div className="w-full h-ful">
-          <div className="w-full flex justify-center mt-3">
-            <h2>Settings</h2>
-          </div>
-
-          <div className="fixed top-4  right-4">
-            <img
-              src="close.png"
-              alt=""
-              className="w-6 h-6 ml-5 mb-1 hover:h-5 hover:w-5"
-              onClick={() => setSettingsActive(false)}
-            />
-          </div>
-        </div>
-      </div>
-    );
-  } else {
+ 
     return (
       <div className="w-full min-h-screen bg-blue-100 sm:pl-20 sm:pr-20 md:pl-30 md:pr-30 lg:pl-30 lg:pr-30 xl:pl-50 xl:pr-50 pl-4 pr-4">
         <div>
@@ -121,7 +105,7 @@ export default function Profile() {
                   alt=""
                   className=" hover:w-9 hover:h-9 hover:mt-1"
                   onClick={() => {
-                    setSettingsActive(true);
+                   navigate("/settings")
                   }}
                 />
               </div>
@@ -219,4 +203,4 @@ export default function Profile() {
       </div>
     );
   }
-}
+

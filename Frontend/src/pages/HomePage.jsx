@@ -38,13 +38,14 @@ export default function HomePage() {
       {" "}
       <Loading />{" "}
       <div className="w-full min-h-screen bg-blue-100 p-3 relative ">
-        <div className="h-100  w-full flex flex-wrap  sm:pl-10 sm:pr-10 mb-4">
-          <div>
+        <div className="xl:pl-30 ">
             <h5>For you</h5>
-            <hr className="border-2" />
+            <hr className="border-2 w-18" />
           </div>
+        <div className="h-100  w-full flex flex-wrap  mb-4 justify-center">
+          
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5  gap-3.5 sm:gap-5 h-full  ">
+          <div className="grid grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 xl:pl-30 xl:pr-30 mt-3  gap-3.5 sm:gap-5 h-full  ">
             {Object.entries(posts).map(([key, postItem]) => (
               <Post
                 key={key}

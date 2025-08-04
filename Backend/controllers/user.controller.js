@@ -287,32 +287,11 @@ const changeFullName = async (req, res) => {
   });
 };
 const changePasswordIn = async (req, res) => {
-  const { oldPassword, newPassword } = req.body;
+  const { newPassword } = req.body;
   const user = req.user;
   const { emailToken } = generateToken(user._id);
-  if (!oldPassword || !newPassword) {
+  if (!newPassword) {
     throw new ApiError(401, "Old password and new password can't be empty");
-  }
-
-  const isMatch = await user.validatePassword(oldPassword);
-  if (!isMatch) {
-    if (user.passwordSchema.attempts >= 5) {
-      sendVerificationEmail(
-        user.email,
-        emailToken,
-        "Password Reset",
-        "reset your password",
-        "updatePass"
-      );
-
-      return res.status(429).json({
-        message:
-          "Too many incorrect attempts. Please change your password through the link sent to your email.",
-      });
-    }
-    user.passwordSchema.attempts += 1;
-    await user.save({ validateBeforeSave: false });
-    throw new ApiError(401, "incorrect password");
   }
 
   user.passwordSchema.password = newPassword;
@@ -347,15 +326,14 @@ const forgetPassword = async (req, res) => {
   });
 };
 const changeEmail = async (req, res) => {
-  const { password, newEmail } = req.body;
+  const { newEmail } = req.body;
   const user = req.user;
   const { emailToken } = generateToken(user._id);
-  if (!password || !newEmail) {
+  if (!newEmail) {
     throw new ApiError(401, "please provide credentials");
   }
-  const passVerify = user.validatePassword(password);
-  if (!passVerify) {
-    throw new ApiError(402, "incorrect password");
+  if (newEmail === user.email) {
+    throw new ApiError(400, "new email can't be same as old email");
   }
   const emailUsed = await User.findOne({ email: newEmail });
   if (emailUsed) {

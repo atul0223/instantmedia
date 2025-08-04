@@ -10,6 +10,7 @@ import Profile from "./pages/Profile.jsx";
 import UserContextProvider from "./context/UserContextProvider.jsx";
 import HomePage from "./pages/HomePage.jsx";
 import AddPost from "./pages/AddPost.jsx";
+import Settings from "./pages/Settings.jsx";
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
           <Route path="/profile" element={<Profile />}></Route>
           <Route path="/home" element={<HomePage />}></Route>
           <Route path="/upload" element={<AddPost />}></Route>
+          <Route path="/settings" element={<Settings />}></Route>
         </Routes>
       </BrowserRouter>
     </UserContextProvider>

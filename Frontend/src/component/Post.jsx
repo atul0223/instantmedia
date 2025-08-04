@@ -139,12 +139,13 @@ export function Post(props) {
   if (singlePostopen && activePost) {
     return (
       <div className="fixed inset-0 z-50 bg-blue-50 flex items-baseline justify-center p-2 ">
+        <Loading />
         <div className="fixed top-4 right-4 flex justify-center items-center bg-zinc-100 z-50 rounded-full w-12 h-12  shadow-2xl shadow-black">
           <img
             src="close.png"
             alt=""
             className="w-6 h-6 rounded-full  hover:h-5 hover:w-5"
-            onClick={() => setsinglePostOpen(false)}
+            onClick={() => {setLoading(true); window.location.href = window.location.href;setsinglePostOpen(false); setLoading(false);}}
           />
         </div>
         <div className="w-full h-full border-2 border-zinc-200 rounded-3xl shadow-2xl shadow-black sm:flex justify-center gap-5 md:gap-0 overflow-y-scroll sm:overflow-y-visible">
@@ -156,6 +157,7 @@ export function Post(props) {
                 navigate(
                   `/profile?user=${activePost.publisherDetails.username}`
                 );
+                
               }}
             >
               <img
