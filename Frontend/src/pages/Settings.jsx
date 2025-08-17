@@ -311,7 +311,7 @@ function Settings() {
                   }`}
                 >
                   <div className="input-group">
-  <input type="text" className="form-control" placeholder="New username" aria-label="New Full Name" aria-describedby="button-addon3" autoFocus value={newFullName} onChange={(e) => setNewFullName(e.target.value)}/>
+  <input type="text" className="form-control" placeholder="New Fullname" aria-label="New Full Name" aria-describedby="button-addon3" autoFocus value={newFullName} onChange={(e) => setNewFullName(e.target.value)}/>
   <button className="btn btn-primary" type="button" id="button-addon3" onClick={handleFullNameChange}>Update</button>
 </div>
                 </div>
