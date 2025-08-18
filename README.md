@@ -1,1 +1,2 @@
-this is a social media app blueprint for applying and enhancing my webDev skills 
+this is a social media app inspired from pintrest and instagram
+second relese soon !!
