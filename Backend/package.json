@@ -1,14 +1,14 @@
- {
+{
   "name": "backend",
   "version": "1.0.0",
   "description": "",
-  "homepage": "https://github.com/atul0223/project-0#readme",
+  "homepage": "https://github.com/atul0223/instantmedia#readme",
   "bugs": {
-    "url": "https://github.com/atul0223/project-0/issues"
+    "url": "https://github.com/atul0223/instantmedia/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/atul0223/project-0.git"
+    "url": "git+https://github.com/atul0223/instantmedia.git"
   },
   "license": "ISC",
   "author": "Atul sharma",
@@ -31,7 +31,8 @@
     "mongoose-aggregate-paginate-v2": "^1.1.4",
     "multer": "^2.0.1",
     "nodemailer": "^7.0.5",
-    "prettier": "^3.6.2"
+    "prettier": "^3.6.2",
+    "socket.io": "^4.8.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.10"
