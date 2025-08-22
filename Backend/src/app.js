@@ -2,6 +2,7 @@ import express, { json, urlencoded } from "express";
 import cookieParser from "cookie-parser";
 import userRouter from "../routers/userRouter.js";
 import cors from "cors";
+import chatRouter from "../routers/chatRouter.js"
 import profileRouter from "../routers/profileRouter.js";
 import homeRouter from "../routers/homeRouter.js";
 const app = express();
@@ -13,6 +14,7 @@ app.use(express.static("public"));
 app.use("/user", userRouter);
 app.use("/profile", profileRouter);
 app.use("/home", homeRouter);
+app.use("/chat", chatRouter);
 app.use((req, res, next) => {
   console.log(`Unhandled request: ${req.method} ${req.originalUrl}`);
   res.status(404).send("Route not found");
