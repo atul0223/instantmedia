@@ -26,7 +26,7 @@ const userSchema = new Schema(
     },
     profilePic: {
       type: String,
-      default: process.env.DEFAULTPIC,
+      
     },
     isVerified: { type: Boolean, default: false },
     fullName: {

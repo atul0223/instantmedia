@@ -13,7 +13,7 @@ export default function UserContextProvider({ children }) {
     isPrivate: false,
     posts: {},
     profilePic:
-      "https://res.cloudinary.com/dubvb4bha/image/upload/v1752772121/s6njjrsqysstlxneccxw.jpg",
+     "/pic.jpg",
     username: "",
     followerCount: 0,
     followingCount: 0,
@@ -24,6 +24,12 @@ export default function UserContextProvider({ children }) {
     sameUser: false,
     isblocked: false,
   });
+  const accessChat =async(userId)=>{
+      const res =await axios.post(`${BACKENDURL}/chat/accessChat`,{userId1:userId},{withCredentials:true})
+      console.log(res.data);
+      
+      return res.data;
+  }
 const fetchCurrentUser =async()=>{
      try {
       const response = await axios.get(`${BACKENDURL}/user/getUser`, {
@@ -88,7 +94,8 @@ const fetchUser = async (username) => {
         singlePostopen,
         setsinglePostOpen,
         fetchCurrentUser,
-        currentUserDetails
+        currentUserDetails,
+        accessChat
       }}
     >
       {children}

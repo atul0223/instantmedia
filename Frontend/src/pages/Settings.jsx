@@ -393,7 +393,7 @@ function Settings() {
                 </div>
               </div>
                <div
-                  className="w-full h-20 p-4 items-center  cursor-pointer bg-gray-800 rounded-2xl mt-1"
+                  className="w-full h-20 p-4 items-center  cursor-pointer bg-gray-800 rounded-2xl mt-1 text-red-700"
                   onClick={() => {
                     handleLogout();
                   }}

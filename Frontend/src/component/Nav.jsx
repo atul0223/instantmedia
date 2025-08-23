@@ -116,7 +116,7 @@ export default function Nav() {
                       onError={(e) => {
                         e.target.onerror = null;
                         e.target.src =
-                          "https://res.cloudinary.com/dubvb4bha/image/upload/v1752772121/s6njjrsqysstlxneccxw.jpg";
+                          "/pic.jpg";
                       }}
                     />
                     <div className="mt-1 flex items-center">
@@ -203,7 +203,7 @@ export default function Nav() {
                       onError={(e) => {
                         e.target.onerror = null;
                         e.target.src =
-                          "https://res.cloudinary.com/dubvb4bha/image/upload/v1752772121/s6njjrsqysstlxneccxw.jpg";
+                          "/pic.jpg";
                       }}
                     />
 

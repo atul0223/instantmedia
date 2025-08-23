@@ -48,7 +48,7 @@ const signup = async (req, res) => {
     },
     email,
     fullName,
-    profilePic: profilePic?.secure_url || process.env.DEFAULTPIC,
+    profilePic: profilePic?.secure_url
   });
 
   await newUser.save();
