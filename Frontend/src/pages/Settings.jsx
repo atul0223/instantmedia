@@ -205,11 +205,12 @@ function Settings() {
               <div className="w-full h-6 flex justify-center mb-2">
                 <img
                   src={currentUserDetails.profilePic}
+                  
                   className="object-cover w-45 h-45 rounded-full absolute"
                   onError={(e) => {
                     e.target.onerror = null;
-                    e.target.src =
-                      "https://res.cloudinary.com/dubvb4bha/image/upload/v1752772121/s6njjrsqysstlxneccxw.jpg";
+                    e.target.src ="pic.jpg"
+                      
                   }}
                 />
 
@@ -220,7 +221,7 @@ function Settings() {
                       <img
                         src="close.png"
                         alt=""
-                        className="absolute w-4 h-4 z-10 hover:w-3 hover:h-3  mt-4  "
+                        className="absolute w-4 h-4 hover:w-5 hover:h-5 active:w-3 active:h-3  mt-4  "
                         onClick={() => {
                           setIsOpen1(!isOpen1);
                         }}
@@ -228,7 +229,7 @@ function Settings() {
                       <img
                         src="delete.png"
                         alt=""
-                        className="absolute w-6 h-6 z-10 hover:w-5 hover:h-5  ml-9 mb-9 "
+                        className="absolute w-6 h-6 hover:w-7 hover:h-7 active:w-5 active:h-5 z-10  ml-9 mb-9 "
                         onClick={() => {
                           setIsOpen1(!isOpen1);
                           handleDeleteProfilePic();
@@ -246,7 +247,7 @@ function Settings() {
                         <img
                           src="edit.png"
                           alt=""
-                          className="absolute w-5 h-5 z-10 hover:w-4 hover:h-4 ml-10 mt-9"
+                          className="absolute w-5 h-5 hover:w-6 hover:h-6 active:w-4 active:h-4 z-10 ml-10 mt-9"
                         />
                       </div>
                     </div>
@@ -410,7 +411,7 @@ function Settings() {
             <img
               src="close.png"
               alt=""
-              className="w-6 h-6 ml-5 mb-1 hover:h-5 hover:w-5"
+              className="w-5 h-5 hover:w-6 hover:h-6 active:w-4 active:h-4"
             />
           </Link>
         </div>

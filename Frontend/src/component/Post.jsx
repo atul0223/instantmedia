@@ -163,7 +163,12 @@ export function Post(props) {
               <img
                 src={activePost.publisherDetails.profilePic}
                 alt=""
+                
                 className="w-10 h-10 rounded-full"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src ="/pic.jpg"
+                }}
               />
 
               <small className="mt-2 hover:cursor-pointer">
@@ -234,6 +239,10 @@ export function Post(props) {
                         <img
                           src={item.commenterDetails.profilePic}
                           alt={`${item.commenterDetails.username}'s profile`}
+                            onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src ="/pic.jpg"
+                }}
                           className="w-8 h-8 rounded-full object-cover"
                         />
                         <div className="font-bold text-sm text-gray-800 pt-2 flex">

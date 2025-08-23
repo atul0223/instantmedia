@@ -10,7 +10,7 @@ export default function Login() {
   const passref = useRef();
   const trustref = useRef();
   const [message, setMessage] = useState("");
-  const { loggedIn, setLoggedIn, loading, setLoading } =
+  const { loggedIn, setLoggedIn, loading, setLoading ,fetchCurrentUser} =
     useContext(UserContext);
   useEffect(() => {
     setLoading(false);
@@ -36,12 +36,14 @@ export default function Login() {
         if (response.data.requiresOtp) {
           setLoading(false);
           localStorage.setItem("actualuser1", username);
+           
           navigate("/verifyotp");
         } else {
           setMessage(response.data.message);
           setLoggedIn(true);
           setLoading(false);
           localStorage.setItem("actualuser1", username);
+         
           navigate("/home");
         }
       })
@@ -50,10 +52,12 @@ export default function Login() {
         setLoading(false);
         if (error.response) {
           if (error.response.data.requiresOtp) {
+             
             navigate("/verifyotp");
           }
           if (error.response.data.message === "Please verify your email") {
             localStorage.setItem("username", `${username}`);
+             
             navigate("/verifyemail");
           }
 

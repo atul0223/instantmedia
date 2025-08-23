@@ -93,17 +93,20 @@ export default function Profile() {
   }, [user]);
  
     return (
+      <>
+      {loading || singlePostopen ? <></> : <Nav />}
       <div className="w-full min-h-screen bg-blue-100 sm:pl-20 sm:pr-20 md:pl-30 md:pr-30 lg:pl-30 lg:pr-30 xl:pl-50 xl:pr-50 pl-4 pr-4">
+        
         <div>
           <Loading />
           <div className="flex justify-end">
             {" "}
             {targetuser.sameUser ? (
-              <div className="w-10 h-10 mt-4 ">
+              <div className="w-11 h-11 mt-4 ">
                 <img
                   src="setting.png"
                   alt=""
-                  className=" hover:w-9 hover:h-9 hover:mt-1"
+                  className="w-10 h-10 hover:w-11 hover:h-11 active:w-9 active:h-9"
                   onClick={() => {
                    navigate("/settings")
                   }}
@@ -121,8 +124,7 @@ export default function Profile() {
                 className="object-cover w-full h-full"
                 onError={(e) => {
                   e.target.onerror = null;
-                  e.target.src =
-                    "https://res.cloudinary.com/dubvb4bha/image/upload/v1752772121/s6njjrsqysstlxneccxw.jpg";
+                  e.target.src ="/pic.jpg"
                 }}
               />
             </div>
@@ -199,8 +201,8 @@ export default function Profile() {
             )}
           </div>
         </div>
-        {loading || singlePostopen ? <></> : <Nav />}
-      </div>
+        
+      </div></>
     );
   }
 

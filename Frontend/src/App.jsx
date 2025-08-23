@@ -11,6 +11,7 @@ import UserContextProvider from "./context/UserContextProvider.jsx";
 import HomePage from "./pages/HomePage.jsx";
 import AddPost from "./pages/AddPost.jsx";
 import Settings from "./pages/Settings.jsx";
+import Chat from "./pages/Chat.jsx";
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
           <Route path="/home" element={<HomePage />}></Route>
           <Route path="/upload" element={<AddPost />}></Route>
           <Route path="/settings" element={<Settings />}></Route>
+           <Route path="/chat" element={<Chat />}></Route>
         </Routes>
       </BrowserRouter>
     </UserContextProvider>

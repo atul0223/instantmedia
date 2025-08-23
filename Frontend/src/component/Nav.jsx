@@ -90,7 +90,7 @@ export default function Nav() {
             <img
               src="close.png"
               alt=""
-              className="w-6 h-6 ml-5 mb-1 hover:h-5 hover:w-5"
+              className="w-5 h-5 ml-5 mb-1 hover:h-6 hover:w-6 hover:cursor-pointer active:w-4 active:h-4"
               onClick={() => setNotificationActive(false)}
             />
           </div>
@@ -176,7 +176,7 @@ export default function Nav() {
             <img
               src="close.png"
               alt=""
-              className="w-6 h-6 ml-5 mb-1 hover:h-5 hover:w-5"
+              className="w-5 h-5 ml-5 mb-1 hover:cursor-pointer active:w-4 active:h-4"
               onClick={() => setSearching(false)}
             />
           </div>
@@ -219,7 +219,8 @@ export default function Nav() {
     );
   } else {
     return (
-      <div className="sticky bottom-4 w-82 bg-zinc-100 shadow-lg z-50 rounded-full m-auto">
+      <div className=" flex justify-center fixed bottom-4 w-full z-50 ">
+      <div className="fixed bottom-4 w-82 bg-zinc-100 shadow-lg z-50 rounded-full ">
         <div className="flex justify-between items-center px-10 py-6 relative">
           {/* Navigation Icons */}
           <FaHome
@@ -258,8 +259,9 @@ export default function Nav() {
             {" "}
             <FaUser className="text-xl text-gray-600 hover:text-black" />
           </Link>
+          
         </div>
-      </div>
+      </div></div>
     );
   }
 }

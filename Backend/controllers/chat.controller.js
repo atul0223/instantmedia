@@ -21,7 +21,8 @@ const fetchChats = async (req, res) => {
           foreignField: "_id",
           as: "users",
         },
-      },
+      }
+      ,
       {
         $lookup: {
           from: "users",
@@ -76,11 +77,19 @@ const fetchChats = async (req, res) => {
           "groupAdmin.username": 1,
           "groupAdmin.email": 1,
           "groupAdmin.profilePic": 1,
-          latestMessage: 1,
+          "latestMessage.chat": 1,
+          "latestMessage.content": 1,
+          "latestMessage.sender.username": 1,
+          "latestMessage.sender.profilePic": 1,
+          "latestMessage.sender._id": 1,
         },
       },
     ]);
-    return res.status(200).json({chats:chats})
+    const result =chats.reduce((acc, item, index) => {
+  acc[index] = item;
+  return acc;
+}, {});
+    return res.status(200).json(result)
   } catch (error) {
   
   
