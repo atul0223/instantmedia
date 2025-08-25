@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import UserContext from "./UserContext";
 import axios from "axios";
 import { BACKENDURL } from "../config";
@@ -8,12 +8,14 @@ export default function UserContextProvider({ children }) {
   const [selectedPost, setSelectedPost] = useState();
   const [singlePostopen, setsinglePostOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [currentUserDetails,setCurrentUserDetails]=useState({})
+  const [currentUserDetails, setCurrentUserDetails] = useState({});
+  const [selectedChat, setSelectedChat] = useState([]);
+  const [messages, setMessages] = useState([]);
+    const [isSmallScreen, setIsSmallScreen] = useState(false);
   const [targetuser, setTargetUser] = useState({
     isPrivate: false,
     posts: {},
-    profilePic:
-     "/pic.jpg",
+    profilePic: "/pic.jpg",
     username: "",
     followerCount: 0,
     followingCount: 0,
@@ -24,28 +26,49 @@ export default function UserContextProvider({ children }) {
     sameUser: false,
     isblocked: false,
   });
-  const accessChat =async(userId)=>{
-      const res =await axios.post(`${BACKENDURL}/chat/accessChat`,{userId1:userId},{withCredentials:true})
-      console.log(res.data);
-      
-      return res.data;
-  }
-const fetchCurrentUser =async()=>{
-     try {
+  const accessMessage = async (chatId) => {
+
+    setLoading(true)
+    const res = await axios.get(`${BACKENDURL}/chat/${chatId}/getMessages`, {
+      withCredentials: true,
+    });
+ 
+    setMessages(res.data);
+    setLoading(false)
+    return res.data;
+  };
+  const accessChat = async (userId) => {
+    const res = await axios.post(
+      `${BACKENDURL}/chat/accessChat`,
+      { userId1: userId },
+      { withCredentials: true }
+    );
+    
+    setSelectedChat(res.data);
+    return res.data;
+  };
+  const fetchCurrentUser = async () => {
+    try {
       const response = await axios.get(`${BACKENDURL}/user/getUser`, {
         withCredentials: true,
       });
-      setCurrentUserDetails(response.data)
-     
-      
-      
-        return response.data;
-      
+      setCurrentUserDetails(response.data);
+
+      return response.data;
     } catch (error) {
       console.error("Error fetching user data:", error);
     }
   };
-const fetchUser = async (username) => {
+   useEffect(() => {
+    const mediaQuery = window.matchMedia('(max-width: 639px)');
+    setIsSmallScreen(mediaQuery.matches);
+
+    const handler = (e) => setIsSmallScreen(e.matches);
+    mediaQuery.addEventListener('change', handler);
+    return () => mediaQuery.removeEventListener('change', handler);
+  }, []);
+
+  const fetchUser = async (username) => {
     try {
       const response = await axios.get(`${BACKENDURL}/profile/${username}`, {
         withCredentials: true,
@@ -95,7 +118,13 @@ const fetchUser = async (username) => {
         setsinglePostOpen,
         fetchCurrentUser,
         currentUserDetails,
-        accessChat
+        accessChat,
+        accessMessage,
+        selectedChat,
+        setSelectedChat,
+        messages,
+        setMessages,
+        isSmallScreen
       }}
     >
       {children}

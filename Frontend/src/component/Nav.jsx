@@ -28,7 +28,7 @@ export default function Nav() {
         }
       )
       .catch((err) => console.log(err));
-    console.log(res);
+ 
   };
   const handleReject = async (username) => {
     const res = await axios
@@ -42,7 +42,7 @@ export default function Nav() {
         }
       )
       .catch((err) => console.log(err));
-    console.log(res);
+ 
   };
   const handleNotifications = async () => {
     setNotificationActive(true);
@@ -51,7 +51,7 @@ export default function Nav() {
         withCredentials: true,
       })
       .catch((err) => console.log(err));
-    console.log(res);
+  
 
     setNotifications(res.data.notifications);
   };
@@ -64,7 +64,7 @@ export default function Nav() {
         withCredentials: true,
       })
       .catch((err) => console.log(err));
-    console.log(res);
+
 
     setData(res.data);
   };
