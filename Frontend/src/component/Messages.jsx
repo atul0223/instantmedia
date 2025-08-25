@@ -6,11 +6,11 @@ import { BACKENDURL } from "../config";
 import axios from "axios";
     import { useNavigate } from 'react-router-dom';
 
-export default function Messages(props) {
+export default function Messages() {
       const navigate = useNavigate();
   const [isAtBottom, setIsAtBottom] = useState(true);
   const[sendDisable,setSendDisabled]=useState(false)
-  const { selectedChat, messages, currentUserDetails,isSmallScreen} =
+  const { selectedChat, messages, currentUserDetails,isSmallScreen, setSelectedChat,accessMessage,fetchCurrentUser} =
     useContext(UserContext);
   const bottomRef = useRef(null);
   const userReturn = (users) => {
@@ -23,9 +23,17 @@ export default function Messages(props) {
       return users[1];
     }
   };
+  const handleRefresh = () => {
+    const chat = JSON.parse(localStorage.getItem("selectedChat"));
+    setSelectedChat(chat)
+    accessMessage(chat._id);
+  };
+
   const moveToLastMsg = () =>
     bottomRef.current?.scrollIntoView({ behavior: "auto" });
   useEffect(() => {
+    fetchCurrentUser()
+    handleRefresh()
     moveToLastMsg();
  
     
@@ -40,7 +48,7 @@ export default function Messages(props) {
 
     container?.addEventListener("scroll", handleScroll);
     return () => container?.removeEventListener("scroll", handleScroll);
-  }, [messages]);
+  }, []);
 
   const [newMsg, setNewMsg] = useState("");
   const selectedChatMetaData = userReturn(selectedChat.users);
@@ -68,9 +76,9 @@ export default function Messages(props) {
     setSendDisabled(false)
     setNewMsg("");
   };
-  if (!selectedChat?.chatName) {
+  if (!selectedChat?.chatName && !isSmallScreen) {
     return (
-      <div className="w-full h-full bg-blue-100 flex justify-center items-center font-extralight text-center font-serif select-none">
+      <div className="w-full h-full bg-blue-100  justify-center items-center font-extralight text-center font-serif select-none sm:block hidden">
         <h1>
           Start chatting <br />
           Now...
@@ -115,7 +123,7 @@ export default function Messages(props) {
           id="message-scroll-container"
         >
           <div className="w-full flex justify-center ">
-            <div className=" w-1/2 h-fit flex justify-center items-center p-2 mt-4 mb-4 bg-black opacity-75  break-words rounded m-1 text-amber-300 text-center ">
+            <div className=" w-1/2 h-fit flex justify-center items-center p-2 mt-4 mb-4 bg-black opacity-75  break-words rounded m-1 text-amber-300 text-center select-none">
               <small>
                 Messages are end-to-end encrypted. Only people in this chat can
                 read,
@@ -147,7 +155,10 @@ export default function Messages(props) {
                       src={item.sender.profilePic}
                       alt=""
                       className="w-10 h-10 rounded-full mr-1"
-                    />
+                      onError={(e) => {
+              e.target.onerror = null; e.target.src = "/pic.jpg";
+             }}
+                        />
                   ) : (
                     <div className="w-11 h-11"></div>
                   )}{" "}

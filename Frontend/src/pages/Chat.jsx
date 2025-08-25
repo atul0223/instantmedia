@@ -3,7 +3,7 @@ import Loading from "../component/Loading.jsx";
 
 import UserContext from "../context/UserContext.js";
 
-import SingleChat from "../component/singleChat.jsx";
+import SingleChat from "../component/SingleChat.jsx";
 import axios from "axios";
 import { BACKENDURL } from "../config.js";
 import { useNavigate } from "react-router-dom";
@@ -44,6 +44,8 @@ export default function Chat() {
         withCredentials: true,
       });
       setChats(res.data);
+     
+      
       setLoading(false);
     } catch (error) {
       console.log(error);
@@ -51,13 +53,15 @@ export default function Chat() {
   };
   useEffect(() => {
     fetchChats();
+   
+    
     fetchCurrentUser();
     
   }, []);
   const handleAccessChat = (userId) => {
     setLoading(true)
-   accessChat(userId).then((chatDetails)=>accessMessage(chatDetails._id))
- 
+   accessChat(userId).then((chatDetails)=>{accessMessage(chatDetails._id);localStorage.setItem("selectedChat",JSON.stringify(chatDetails))})
+  
    setLoading(false)
   
   };
@@ -97,7 +101,7 @@ export default function Chat() {
                     className="w-full rounded-2xl pl-3 h-20 hover:bg-blue-100 flex  items-center mb-1 "
                     key={searchData._id}
                     onClick={() => {handleAccessChat(item._id)
-                      isSmallScreen?navigate("/"):<></>}}
+                      isSmallScreen?navigate("/chat/messages"):<></>}}
                   >
                     <div className="w-12 h-12 rounded-full">
                       <img

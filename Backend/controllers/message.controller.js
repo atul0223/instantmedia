@@ -2,14 +2,17 @@
 import Message from "../modles/message.model.js"
 import User from "../modles/user.model.js";
 import Chat from "../modles/chat.model.js";
+import mongoose from "mongoose";
 
 const getMessages =async(req,res)=>{
     const {chatId} =req.params;
+  
+    
     if (!chatId) {
          return res.status(400).json({message:"please provide chatId "})
     }
       try {
-    const messages = await Message.find({ chat: chatId })
+    const messages = await Message.find({ chat: new mongoose.Types.ObjectId(chatId ) })
       .populate("sender", "username profilePic email")
       .populate("chat");
     res.json(messages);

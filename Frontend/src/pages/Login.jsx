@@ -10,7 +10,7 @@ export default function Login() {
   const passref = useRef();
   const trustref = useRef();
   const [message, setMessage] = useState("");
-  const { loggedIn, setLoggedIn, loading, setLoading ,fetchCurrentUser} =
+  const { loggedIn, setLoggedIn, loading, setLoading } =
     useContext(UserContext);
   useEffect(() => {
     setLoading(false);

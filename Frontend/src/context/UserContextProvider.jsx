@@ -11,7 +11,7 @@ export default function UserContextProvider({ children }) {
   const [currentUserDetails, setCurrentUserDetails] = useState({});
   const [selectedChat, setSelectedChat] = useState([]);
   const [messages, setMessages] = useState([]);
-    const [isSmallScreen, setIsSmallScreen] = useState(false);
+  const [isSmallScreen, setIsSmallScreen] = useState(false);
   const [targetuser, setTargetUser] = useState({
     isPrivate: false,
     posts: {},
@@ -43,7 +43,7 @@ export default function UserContextProvider({ children }) {
       { userId1: userId },
       { withCredentials: true }
     );
-    
+   
     setSelectedChat(res.data);
     return res.data;
   };

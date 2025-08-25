@@ -8,7 +8,7 @@ export default function SingleChat(props) {
    
   
     const chat =props.chat;
-    //const singlChatName =chat.users[0].filter((key ,item)=>(item!==currentUserDetails.username))
+   
    const userReturn =(users)=>{
 
       if (users[0].username!=currentUserDetails.username) {
@@ -18,10 +18,11 @@ export default function SingleChat(props) {
         return users[1]
       }
    }
-   const singlChatName =userReturn(chat.users).username
-  const profilePic =chat.chatName==="sender" ? userReturn(chat.users).profilePic:"/group-chat.png"
+   const singlChatName =userReturn(chat.users)?.username
+  const profilePic =chat.chatName==="sender" ? userReturn(chat.users)?.profilePic:"/group-chat.png"
    const handleAccessChat = () => {
     setSelectedChat(chat)
+    localStorage.setItem("selectedChat",JSON.stringify(chat))
    accessMessage(chat._id)
   
   };
