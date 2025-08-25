@@ -5,7 +5,8 @@ import { useNavigate } from "react-router-dom";
 export default function SingleChat(props) {
     const navigate =useNavigate()
      const {currentUserDetails,accessMessage,setSelectedChat,isSmallScreen} =useContext(UserContext)
-   
+   const selectedChat=JSON.parse(
+    localStorage.getItem("selectedChat"))
   
     const chat =props.chat;
    
@@ -29,7 +30,7 @@ export default function SingleChat(props) {
   return (
 
     <>
-    <div className="w-full rounded-2xl pl-3 h-20 hover:bg-blue-100 flex  items-center mb-1 cursor-pointer " onClick={()=>{handleAccessChat();isSmallScreen?navigate("/chat/messages"):<></>}}>
+    <div className={`w-full rounded-2xl pl-3 h-20 hover:bg-blue-100 flex  items-center mb-1 cursor-pointer ${selectedChat._id===chat._id?"bg-blue-100":""}`} onClick={()=>{handleAccessChat();isSmallScreen?navigate("/chat/messages"):<></>}}>
     <div className="w-12 h-12 rounded-full"><img src={profilePic } onError={(e) => {
                   e.target.onerror = null;
                   e.target.src ="/pic.jpg"

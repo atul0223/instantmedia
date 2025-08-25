@@ -8,11 +8,14 @@ import axios from "axios";
 import { BACKENDURL } from "../config.js";
 import { useNavigate } from "react-router-dom";
 import Messages from "../component/messages.jsx";
+import { FaPlus } from "react-icons/fa";
+import CreateGroup from "../component/CreateGroup.jsx";
 
 export default function Chat() {
   
   const navigate = useNavigate();
   const [targetSearch, setTargetSearch] = useState("");
+
   const [isSearching, setIsSearching] = useState(false);
   const {
    
@@ -20,7 +23,8 @@ export default function Chat() {
     fetchCurrentUser,
     accessChat,
     accessMessage,
-    isSmallScreen
+    isSmallScreen,
+    isCreatingGroup
   } = useContext(UserContext);
   const [searchData, setSearchData] = useState([]);
   const handleSearch = async (e) => {
@@ -68,7 +72,8 @@ export default function Chat() {
   return (
     <div className=" max-w-screen max-h-screen sm:grid grid-cols-6 grid-rows-1">
       <Loading />
-      <div className="col-span-2 w-full h-screen bg-blue-200 p-4 overflow-auto">
+      {!isCreatingGroup?<div className="col-span-2 w-full h-screen bg-blue-200 p-4 overflow-auto">
+      
         <div className="flex ">
           {" "}
           <img
@@ -80,12 +85,13 @@ export default function Chat() {
             }}
           />
           <h4 className="font-serif mt-1 ml-3 ">Chats</h4>
+          <div className="w-full h-full flex justify-end items-center mt-2.5 mr-3"><FaPlus className="w-5 h-5 hover:w-6  hover:h-6 active:w-4 active:h-4"/></div>
         </div>
         <hr />
         <input
           className=" form-control mr-sm-2 h-13 rounded-full"
           type="search"
-          placeholder="Search"
+          placeholder="Search @username"
           aria-label="Search"
           value={targetSearch}
           onChange={handleSearch}
@@ -134,7 +140,7 @@ export default function Chat() {
               })}
           </div>
         )}
-      </div>
+      </div>:<div className="col-span-2"><CreateGroup/></div>}
       <div className="col-span-4 w-full min-h-screen bg-blue-100 sm:block hidden ">
         <Messages />
       </div>

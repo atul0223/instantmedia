@@ -192,10 +192,11 @@ export default function Messages() {
                 onChange={(e) => setNewMsg(e.target.value)}
                 autoFocus
               />
-              <button className="btn btn-primary" disabled={sendDisable}>Send</button>
+              <button className="btn btn-primary" disabled={sendDisable||newMsg.trim()===""}>Send</button>
             </div>
           </form>
         </div>
+        
       </div>
     );
   }

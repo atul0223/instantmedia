@@ -11,6 +11,7 @@ export default function UserContextProvider({ children }) {
   const [currentUserDetails, setCurrentUserDetails] = useState({});
   const [selectedChat, setSelectedChat] = useState([]);
   const [messages, setMessages] = useState([]);
+  const[isCreatingGroup,setIsCreatingGroup]=useState(true)
   const [isSmallScreen, setIsSmallScreen] = useState(false);
   const [targetuser, setTargetUser] = useState({
     isPrivate: false,
@@ -124,7 +125,8 @@ export default function UserContextProvider({ children }) {
         setSelectedChat,
         messages,
         setMessages,
-        isSmallScreen
+        isSmallScreen,
+        isCreatingGroup,setIsCreatingGroup
       }}
     >
       {children}
