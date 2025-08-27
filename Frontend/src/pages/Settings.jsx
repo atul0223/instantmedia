@@ -204,12 +204,12 @@ function Settings() {
             <div className="  w-full h-full flex justify-center   ">
               <div className="w-full h-6 flex justify-center mb-2">
                 <img
-                  src={currentUserDetails.profilePic}
+                  src={currentUserDetails.profilePic || "/pic.jpg"}
                   
                   className="object-cover w-45 h-45 rounded-full absolute"
                   onError={(e) => {
                     e.target.onerror = null;
-                    e.target.src ="pic.jpg"
+                    e.target.src ="/pic.jpg"
                       
                   }}
                 />

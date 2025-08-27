@@ -1,4 +1,4 @@
-import { use, useContext, useRef, useState } from "react";
+import {  useContext, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
@@ -7,7 +7,7 @@ import UserContext from "../context/UserContext";
 import Loading from "../component/Loading";
 export default function Signup() {
   const [acceptpolicy, setAcceptPolicy] = useState(false);
-  const [setLoading] = useContext(UserContext);
+  const {setLoading} = useContext(UserContext);
   const [pass, setPass] = useState("");
   const [message, setMessage] = useState("");
   const userref = useRef();

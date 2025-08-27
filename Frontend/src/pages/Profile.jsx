@@ -120,7 +120,7 @@ export default function Profile() {
           <div className="h-100  w-full flex flex-wrap justify-center pt-15 gap-4  ">
             <div className="rounded-full sm:w-45 sm:h-45 w-30 h-30 overflow-hidden ">
               <img
-                src={targetuser.profilePic}
+                src={targetuser.profilePic || "/pic.jpg"}
                 className="object-cover w-full h-full"
                 onError={(e) => {
                   e.target.onerror = null;

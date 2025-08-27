@@ -113,6 +113,7 @@ export default function Login() {
               type="checkbox"
               value=""
               id="checkDefault"
+              defaultChecked
             />
             <label className="form-check-label" htmlFor="checkDefault">
               Trust on this device?

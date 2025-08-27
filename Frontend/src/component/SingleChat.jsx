@@ -1,4 +1,4 @@
-import { useContext, useEffect } from "react";
+import { useContext } from "react";
 import UserContext from "../context/UserContext";
 import { useNavigate } from "react-router-dom";
 
@@ -9,6 +9,7 @@ export default function SingleChat(props) {
     localStorage.getItem("selectedChat"))
   
     const chat =props.chat;
+  
    
    const userReturn =(users)=>{
 
@@ -20,7 +21,7 @@ export default function SingleChat(props) {
       }
    }
    const singlChatName =userReturn(chat.users)?.username
-  const profilePic =chat.chatName==="sender" ? userReturn(chat.users)?.profilePic:"/group-chat.png"
+  const profilePic =chat.chatName==="sender" ? userReturn(chat.users)?.profilePic:chat?.pic || "/group-chat.png"
    const handleAccessChat = () => {
     setSelectedChat(chat)
     localStorage.setItem("selectedChat",JSON.stringify(chat))
@@ -30,7 +31,7 @@ export default function SingleChat(props) {
   return (
 
     <>
-    <div className={`w-full rounded-2xl pl-3 h-20 hover:bg-blue-100 flex  items-center mb-1 cursor-pointer ${selectedChat._id===chat._id?"bg-blue-100":""}`} onClick={()=>{handleAccessChat();isSmallScreen?navigate("/chat/messages"):<></>}}>
+    <div className={`w-full rounded-2xl pl-3 h-20 hover:bg-blue-100 flex  items-center mb-1 cursor-pointer ${selectedChat?._id===chat._id?"bg-blue-100":""}`} onClick={()=>{handleAccessChat();isSmallScreen?navigate("/chat/messages"):<></>}}>
     <div className="w-12 h-12 rounded-full"><img src={profilePic } onError={(e) => {
                   e.target.onerror = null;
                   e.target.src ="/pic.jpg"

@@ -142,7 +142,7 @@ export function Post(props) {
         <Loading />
         <div className="fixed top-4 right-4 flex justify-center items-center bg-zinc-100 z-50 rounded-full w-12 h-12  shadow-2xl shadow-black">
           <img
-            src="close.png"
+            src="/close.png"
             alt=""
             className="w-6 h-6 rounded-full  hover:h-5 hover:w-5"
             onClick={() => {setLoading(true); window.location.href = window.location.href;setsinglePostOpen(false); setLoading(false);}}
@@ -186,22 +186,20 @@ export function Post(props) {
               >
                 {isLiked ? (
                   <img
-                    src="heart (1).png"
+                    src="/heart (1).png"
                     alt=""
                     className="hover:w-7 hover:h-7"
                   />
                 ) : (
-                  <img src="heart.png" alt="" className="hover:w-7 hover:h-7" />
+                  <img src="/heart.png" alt="" className="hover:w-7 hover:h-7" />
                 )}
                 <small>{activePost.likesCount}</small>
               </div>
               <div className="h-6 w-6 hover:w-7 flex gap-2">
-                <img src="comment.png" alt="" className="hover:w-7 hover:h-7" />
+                <img src="/comment.png" alt="" className="hover:w-7 hover:h-7" />
                 <small>{activePost.commentsCount}</small>
               </div>
-              <div className="w-6 h-6 hover:w-7">
-                <img src="send.png" alt="" className="hover:w-7 hover:h-7" />
-              </div>
+             
             </div>
           </div>
           <div className="  rounded-4xl w-full h-full max-h-2/3 border-2 sm:mt-10 sm:mr-10 lg:mr-30 border-gray-300 overflow-y-scroll ">
@@ -237,7 +235,7 @@ export function Post(props) {
                     >
                       <div className="flex items-center gap-2 mb-2">
                         <img
-                          src={item.commenterDetails.profilePic}
+                          src={item.commenterDetails.profilePic || "/pic.jpg"}
                           alt={`${item.commenterDetails.username}'s profile`}
                             onError={(e) => {
                   e.target.onerror = null;
@@ -257,7 +255,7 @@ export function Post(props) {
                         {item.commenterDetails.username === actualuser1 ? (
                           <div className="w-full flex justify-end">
                             <img
-                              src="delete.png"
+                              src="/delete.png"
                               alt=""
                               className="w-5 h-5 hover:w-6 hover:h-6"
                               onClick={() => {

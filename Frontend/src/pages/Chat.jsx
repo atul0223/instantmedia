@@ -24,7 +24,8 @@ export default function Chat() {
     accessChat,
     accessMessage,
     isSmallScreen,
-    isCreatingGroup
+    isCreatingGroup,
+    setIsCreatingGroup
   } = useContext(UserContext);
   const [searchData, setSearchData] = useState([]);
   const handleSearch = async (e) => {
@@ -81,11 +82,11 @@ export default function Chat() {
             alt=""
             className="w-10 h-10 hover:bg-gray-500 rounded-xl active:bg-gray-500 active:w-9 active:h-9"
             onClick={() => {
-              navigate("/home");
+              navigate(-1);
             }}
           />
           <h4 className="font-serif mt-1 ml-3 ">Chats</h4>
-          <div className="w-full h-full flex justify-end items-center mt-2.5 mr-3"><FaPlus className="w-5 h-5 hover:w-6  hover:h-6 active:w-4 active:h-4"/></div>
+          <div className="w-full h-full flex justify-end items-center mt-2.5 mr-3"><FaPlus className="w-5 h-5 hover:w-6  hover:h-6 active:w-4 active:h-4" onClick={()=>setIsCreatingGroup(true)}/></div>
         </div>
         <hr />
         <input

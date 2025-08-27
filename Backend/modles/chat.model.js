@@ -18,7 +18,11 @@ const chatSchema =new Schema({
     type:mongoose.Types.ObjectId,
     ref:"User"
 }
-},{
+,pic:{
+    type:String,
+    default:""
+}},
+{
     timestamps:true
 });
  const Chat = mongoose.model("Chat",chatSchema)
