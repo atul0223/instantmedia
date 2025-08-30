@@ -27,8 +27,6 @@ export default function CreateGroup() {
         withCredentials: true,
       })
 
-      .catch((err) => console.log(err));
-    console.log(res.data);
 
     setSearchData(res.data);
   };
@@ -48,7 +46,6 @@ const handleCreateGroup = async () => {
       },
     });
 
-    console.log("Group created:", res.data);
     setIsCreatingGroup(false);
     location.reload();
   } catch (err) {

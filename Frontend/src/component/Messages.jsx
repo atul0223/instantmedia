@@ -19,10 +19,12 @@ export default function Messages() {
   };
   const navigate = useNavigate();
   const [isAtBottom, setIsAtBottom] = useState(true);
-  const [addPersons, setAddPersons] = useState(false);
+
   const [isGroupSettingsOn, setIsGroupSettingsOn] = useState(false);
   const [sendDisable, setSendDisabled] = useState(false);
   const [selectedPic, setSelectedPic] = useState(null);
+    const [targetSearch, setTargetSearch] = useState("");
+      const [searchData, setSearchData] = useState([]);
   const handleChangeGroupPic = async (e) => {
     setLoading(true);
     const file = e.target.files[0];
@@ -48,6 +50,22 @@ export default function Messages() {
 
       setLoading(false);
     }
+  };
+  const handleSearch = async (e) => {
+    setTargetSearch(e.target.value);
+
+    const res = await axios
+      .get(`${BACKENDURL}/home/search`, {
+        params: { query: e.target.value },
+        withCredentials: true,
+      })
+
+      
+
+      const actualData = res.data.filter((item) =>
+        selectedChat.users.every((user) => user._id !== item._id)
+      );
+    setSearchData(actualData);
   };
 
   const {
@@ -135,7 +153,7 @@ export default function Messages() {
         { chatId: selectedChat._id, newName: newName },
         { withCredentials: true }
       );
-      console.log(res.data);
+  
       setIsChangingGroupName(false);
       setSelectedChat(null);
       localStorage.removeItem("selectedChat");
@@ -151,13 +169,31 @@ export default function Messages() {
         { chatId: selectedChat._id },
         { withCredentials: true }
       );
-      console.log(res.data);
+
 
       setSelectedChat(null);
       localStorage.removeItem("selectedChat");
       location.reload();
     } catch (error) {
       console.error("Error exiting group:", error);
+    }
+  };
+  const handleAddPeople = async (userId) => {
+    try {
+      const res = await axios.put(
+        `${BACKENDURL}/chat/addtogroup`,
+        { chatId: selectedChat._id, userId },
+        { withCredentials: true }
+      );
+      setSearchData(null);
+   
+     setSelectedChat(null);
+      localStorage.removeItem("selectedChat");
+      location.reload();
+      alert("User added successfully");
+    
+    } catch (error) {
+      console.error("Error adding people:", error);
     }
   };
   const handleDeleteGroup = async () => {
@@ -167,7 +203,7 @@ export default function Messages() {
         { chatId: selectedChat._id },
         { withCredentials: true }
       );
-      console.log(res.data);
+   
 
       setSelectedChat(null);
       localStorage.removeItem("selectedChat");
@@ -176,11 +212,8 @@ export default function Messages() {
   };
   if (!selectedChat?.chatName && !isSmallScreen) {
     return (
-      <div className="w-full h-full bg-blue-100  justify-center items-center font-extralight text-center font-serif select-none sm:block hidden">
-        <h1>
-          Start chatting <br />
-          Now...
-        </h1>
+      <div className="w-full max-h-screen flex justify-center">
+        <img src="/imgg.png" alt="" className="h-180 " />
       </div>
     );
   } else if (isGroupSettingsOn) {
@@ -321,10 +354,52 @@ export default function Messages() {
                 <small className="text-gray-500">
                   ({selectedChat.users.length} members)
                 </small>
-                <FaPlus className="hover:text-blue-900 mt-0.5" />
+                {isAddingPeople?<img src="/close.png" alt="" className="w-3 h-3 mt-1 hover:w-4 hover:h-4 cursor-pointer hover:mb-1" onClick={()=>setIsAddingPeople(false)}  />:<FaPlus className="hover:text-blue-900 mt-0.5 cursor-pointer" onClick={()=>setIsAddingPeople(true)}/>}
               </div>
             </div>
-            {selectedChat.users.map((user) => (
+            {isAddingPeople?
+            <>
+              <div className="flex items-center ml-7 mb-2 mt-2 mr-10">
+              <input
+                type="text"
+                placeholder="Search @users"
+                className="flex-grow border-b border-neutral-800 focus:outline-none "
+                value={targetSearch}
+                onChange={handleSearch}
+                autoFocus
+              />
+            </div>
+            <div className="overflow-y-auto w-full ">
+              {searchData?.map((item) => {
+                return (
+                  <div key={item._id} className="pr-5 select-none">
+                    <div
+                      className={`w-full rounded-2xl pl-3 h-20 hover:bg-blue-100 flex  items-center mb-1 0":""}` }
+                      key={searchData._id}
+                                 >
+                      <div className="w-12 h-12 rounded-full">
+                       <img
+                          src={item.profilePic}
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = "/pic.jpg";
+                          }}
+                          alt=""
+                          className="md:w-12 md:h-12 rounded-full w-10 h-10 bg-gray-400"
+                        />
+                      </div>
+                      <div className="ml-3">
+                        <div className="font-serif">@{item.username}</div>
+                      </div>
+                      <FaPlus className="ml-auto cursor-pointer" onClick={() => handleAddPeople(item._id)}/>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            </>
+            :selectedChat.users.map((user) => (
               <div
                 key={user._id}
                 className="  flex items-center p-2 gap-1 border border-white bg-blue-200 cursor-pointer hover:bg-blue-300 hover:font-bold "
@@ -361,7 +436,7 @@ export default function Messages() {
                             { chatId: selectedChat._id, userId: user._id },
                             { withCredentials: true }
                           );
-                          console.log(res.data);
+                       
                           setSelectedChat(null);
                           localStorage.removeItem("selectedChat");
                           location.reload();
