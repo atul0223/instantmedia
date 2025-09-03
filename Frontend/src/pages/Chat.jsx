@@ -7,9 +7,11 @@ import SingleChat from "../component/SingleChat.jsx";
 import axios from "axios";
 import { BACKENDURL } from "../config.js";
 import { useNavigate } from "react-router-dom";
-import Messages from "../component/messages.jsx";
+import Messages from "../component/Messages.jsx"
 import { FaPlus } from "react-icons/fa";
 import CreateGroup from "../component/CreateGroup.jsx";
+import socket from "../helper/socket.js";
+
 
 export default function Chat() {
   
@@ -36,34 +38,43 @@ export default function Chat() {
         params: { query: e.target.value },
         withCredentials: true,
       })
-      .catch((err) => console.log(err));
+     
  
 
     setSearchData(res.data);
   };
   const [chats, setChats] = useState({});
   const fetchChats = async () => {
-    try {
+    
       setLoading(true);
       const res = await axios.get(`${BACKENDURL}/chat/`, {
         withCredentials: true,
       });
       setChats(res.data);
      
+     
       
       setLoading(false);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+      };
   useEffect(() => {
     fetchChats();
-   
-    
-    fetchCurrentUser();
+   socket.on("newMessage", msg => {
+    chats.latestMessage = msg.content});
+   fetchCurrentUser();
     
   }, []);
-  const handleAccessChat = (userId) => {
+//   useEffect(()=>{
+//       socket.on("newMsg",(newMessage) => {
+//   setChats((prevChats) =>
+//     prevChats.map((chat) =>
+//       chat._id === newMessage.chat._id
+//         ? { ...chat, latestMessage: newMessage }
+//         : chat
+//     )
+//   );
+// })
+//   },[socket])
+const handleAccessChat = (userId) => {
     setLoading(true)
    accessChat(userId).then((chatDetails)=>{accessMessage(chatDetails._id);localStorage.setItem("selectedChat",JSON.stringify(chatDetails))})
   

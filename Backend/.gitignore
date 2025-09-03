@@ -24,3 +24,5 @@ dist-ssr
 *.sw?
 .node_modules
 *.env
+Backend/localhost.pem
+Backend/localhost-key.pem

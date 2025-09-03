@@ -8,6 +8,8 @@ import { HiDotsVertical } from "react-icons/hi";
 import { BACKENDURL } from "../config";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import socket from "../helper/socket";
+
 
 export default function Messages() {
   const fileInputRef = useRef(null);
@@ -77,6 +79,7 @@ export default function Messages() {
     setSelectedChat,
     accessMessage,
     fetchCurrentUser,
+    setMessages
   } = useContext(UserContext);
   const bottomRef = useRef(null);
   const userReturn = (users) => {
@@ -95,14 +98,14 @@ export default function Messages() {
     accessMessage(chat?._id);
   };
 
-  const moveToLastMsg = () =>
-    bottomRef.current?.scrollIntoView({ behavior: "auto" });
+  const moveToLastMsg = () =>bottomRef.current?.scrollIntoView({ behavior: "auto" });
   useEffect(() => {
     fetchCurrentUser();
     handleRefresh();
-    accessMessage(selectedChat?._id);
-
-    moveToLastMsg();
+    accessMessage(selectedChat?._id).then(()=> moveToLastMsg())
+    socket.emit("joinChat",selectedChat._id)
+ 
+   
 
     const container = document.getElementById("message-scroll-container");
 
@@ -115,7 +118,7 @@ export default function Messages() {
 
     container?.addEventListener("scroll", handleScroll);
     return () => container?.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [selectedChat?._id]);
 
   const [newMsg, setNewMsg] = useState("");
   const [newName, setNewName] = useState("");
@@ -143,9 +146,14 @@ export default function Messages() {
       { chatId: selectedChat._id, content: newMsg },
       { withCredentials: true }
     );
+    socket.emit("sendMessage",{chat:selectedChat,content:newMsg,sender:currentUserDetails})
+    
     setSendDisabled(false);
-    setNewMsg("");
+    setNewMsg("");  
   };
+  useEffect(() => {
+  bottomRef.current?.scrollIntoView({ behavior: "auto" });
+}, [messages]);
   const handleChangeGroupName = async () => {
     try {
       const res = await axios.put(
@@ -162,6 +170,19 @@ export default function Messages() {
       console.error("Error changing group name:", error);
     }
   };
+ useEffect(() => {
+    socket.on("newMessage", msg => {
+      setMessages(prev => [...prev, msg])
+      moveToLastMsg()
+    });
+
+    return () => {
+      socket.off("newMessage"); // Clean up to prevent duplicate listeners
+    };
+  }, [socket]);
+
+ 
+
   const handleExitGroup = async () => {
     try {
       const res = await axios.put(
@@ -489,7 +510,7 @@ export default function Messages() {
             <></>
           )}
           <img
-            src={profilePic}
+            src={profilePic || "pic.jpg"}
             alt=""
             onError={(e) => {
               e.target.onerror = null;
@@ -524,7 +545,7 @@ export default function Messages() {
           <div>
             {messages.map((item, index) => {
               return item.sender._id === currentUserDetails._id ? (
-                <div className="flex mr-2 justify-end" key={item._id}>
+                <div className="flex mr-2 justify-end" key={item?._id}>
                   <div
                     className={`max-w-2/3 w-fit h-fit p-2 bg-emerald-200 break-words rounded-tl-xl rounded-br-xl ${
                       shouldShowPic(index) ? "" : "rounded-tr-xl"
@@ -539,7 +560,7 @@ export default function Messages() {
                 <div className="flex gap-2 ml-2" key={item._id}>
                   {shouldShowPic(index) ? (
                     <img
-                      src={item.sender.profilePic}
+                      src={item.sender.profilePic ||"pic.jpg"}
                       alt=""
                       className="w-10 h-10 rounded-full mr-1"
                       onError={(e) => {

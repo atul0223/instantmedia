@@ -35,6 +35,7 @@ const verifyOtp = async (req, res) => {
     httpOnly: true,
     secure: true,
     sameSite: "none",
+    maxAge: 30 * 24 * 60 * 60 * 1000, 
   };
   if (user.trustDevice === true) {
     user.refreshToken = refreshToken;

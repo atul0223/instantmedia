@@ -161,7 +161,7 @@ export function Post(props) {
               }}
             >
               <img
-                src={activePost.publisherDetails.profilePic}
+                src={activePost.publisherDetails.profilePic || "/pic.jpg" }
                 alt=""
                 
                 className="w-10 h-10 rounded-full"

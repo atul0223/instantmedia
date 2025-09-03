@@ -35,6 +35,9 @@ export default function UserContextProvider({ children }) {
     });
  
     setMessages(res.data);
+
+   
+    
     setLoading(false)
     return res.data;
   };

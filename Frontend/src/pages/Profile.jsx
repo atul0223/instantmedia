@@ -30,7 +30,7 @@ export default function Profile() {
     }
     const data = await fetchUser(user);
 
-    const newRequestStatus = data.requestStatus;
+    const newRequestStatus = data?.requestStatus;
 
     if (newRequestStatus === "requested" || newRequestStatus === "unfollow") {
       setChoice(false);
@@ -47,8 +47,8 @@ export default function Profile() {
     }
 
     const shouldHidePosts =
-      data.isBlocked ||
-      (data.isPrivate && !data.profileDetails.isFollowing && !data.sameUser);
+      data?.isBlocked ||
+      (data?.isPrivate && !data?.profileDetails.isFollowing && !data?.sameUser);
     setCansee(!shouldHidePosts);
     setLoading(false);
   };

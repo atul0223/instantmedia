@@ -4,7 +4,7 @@ import { useContext, useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { BACKENDURL } from "../config";
 import UserContext from "../context/UserContext";
-
+import socket from "../helper/socket.js"
 import Nav from "../component/Nav";
 import Loading from "../component/Loading";
 export default function HomePage() {
@@ -31,6 +31,7 @@ export default function HomePage() {
     setLoading(false);
   };
   useEffect(() => {
+    socket.emit("connected")
     LoadPosts();
   }, []);
   return (

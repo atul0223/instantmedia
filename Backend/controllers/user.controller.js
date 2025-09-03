@@ -21,7 +21,7 @@ const extractPublicId = (url) => {
 const generateToken = (userId) => {
   const accessToken = generateJWT(userId, process.env.ACCESSTIME);
   const refreshToken = generateJWT(userId, process.env.REFRESHTIME);
-  const TrustToken = generateJWT(userId, process.env.REFRESHTIME);
+  const TrustToken = generateJWT(userId, "30d");
   const emailToken = generateJWT(userId, "10m");
   return { accessToken, refreshToken, TrustToken, emailToken };
 };
